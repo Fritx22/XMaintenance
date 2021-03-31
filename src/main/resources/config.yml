@@ -1,0 +1,46 @@
+# XMaintenace plugin configuration
+# Copyright (C) 2020 F3DEX22
+
+# Plugin prefix for all the configurable messages
+plugin-prefix: '&6[XMaintenance]&r '
+
+# This will be the name of the fake outdated server version
+# This text is red by default
+ping-text: 'Maintenance'
+
+# Enable bypass permission. The permission is "xmaintenance.bypass"
+# In the security mode the bypass will be disabled
+enable-bypass: true
+
+# Whether or not allow players to execute the plugin command
+# The permission for the plugin command is "xmaintenance.admin"
+# For security reasons, the security mode can't be enabled by a player
+allow-players: true
+
+# When a player tries to join during a maintenance will be kicked with this message.
+kick-message: '&cWe are under maintenance, please try again later.'
+
+# Kick message shown when a staff enables the security maintenance mode
+security-kick-message: '&cThe staff enabled the security maintenance mode.'
+
+# All the players that have the permission "xmaintenance.admin" will see this messages
+admin-alert-messages:
+  - '&6&m----------------------------------------'
+  - '%prefix%&7The player &c%player% &7tried to join.'
+  - '&6&m----------------------------------------'
+
+# Message used when a player tries to enable/disable the maintenance mode but it's already enabled/disabled.
+already-status: '%prefix%&7The maintenance mode is already %status%&7.'
+
+# If enabled, this will set the online and max players to zero when the server is under maintenance
+# Minecraft client don't show that information by default but is useful for hiding from web pages that displays it
+set-players-to-zero: true
+
+enable-players-hover-message: true
+players-hover-messages:
+  - '&7XMaintenance - Default message'
+  - '&aYou can add multiple lines!'
+
+# Integer number used by the client to know if the server is the same version, it's outdated or it's of a newer version
+# More information: https://minecraft.gamepedia.com/Protocol_version
+fake-version-protocol-number: -503
