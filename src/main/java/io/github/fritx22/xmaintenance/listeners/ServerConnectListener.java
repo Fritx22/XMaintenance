@@ -36,12 +36,12 @@ public class ServerConnectListener implements Listener {
 
             String status = plugin.getStatusConfig().getString("maintenance-type");
 
-            if(plugin.getConfig().get().getBoolean("enable-bypass") && e.getPlayer().hasPermission("xmaintenance.bypass") && !status.equals("SECURITY"))
+            if(plugin.getConfig().get().getBoolean("enable-bypass") && e.getPlayer().hasPermission("xmaintenance.bypass") && !status.equals("EMERGENCY"))
                 return;
 
             switch(status) {
                 case "ALL":
-                case "SECURITY":
+                case "EMERGENCY":
                     this.cancelConnection(e);
                     break;
                 case "JOIN":

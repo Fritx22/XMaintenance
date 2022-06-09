@@ -32,9 +32,7 @@ public class XMaintenance extends Plugin {
 
         if(this.statusConfig.get().getBoolean("maintenance-enabled"))
             if(!this.statusConfig.get().contains("maintenance-type"))
-                for(byte i = 0 ; i < 30 ; i++) {
-                    this.getProxy().getLogger().severe("The plugin internal configuration is broken! Please stop the proxy and delete the status.yml file.");
-                }
+                this.getProxy().getLogger().severe("The plugin internal configuration is broken! Please stop the proxy and delete the status.yml file.");
 
         this.pingListener = new ProxyPingListener(this);
         ServerConnectListener connectListener = new ServerConnectListener(this);

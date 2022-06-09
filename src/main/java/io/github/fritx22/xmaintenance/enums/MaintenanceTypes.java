@@ -7,5 +7,5 @@ You should have received a copy of the GNU General Public License along with XMa
 package io.github.fritx22.xmaintenance.enums;
 
 public enum MaintenanceTypes {
-    ALL, JOIN, SERVER, SECURITY
+    ALL, JOIN, SERVER, EMERGENCY
 }
