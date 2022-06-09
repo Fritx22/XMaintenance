@@ -9,7 +9,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class MaintenanceCommand extends Command {
 
-    private XMaintenance plugin;
+    private final XMaintenance plugin;
 
     public MaintenanceCommand(XMaintenance plugin) {
         super("maintenance", "xmaintenance.admin", "xmaintenance", "xm");

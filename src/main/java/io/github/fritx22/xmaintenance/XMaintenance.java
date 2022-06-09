@@ -14,7 +14,6 @@ public class XMaintenance extends Plugin {
     private final ConfigurationUtil statusConfig = new ConfigurationUtil(this, "status.yml");
 
     private ProxyPingListener pingListener;
-    //private Settings settings = new Settings(this, "config.yml");
 
     @Override
     public void onEnable() {
