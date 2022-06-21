@@ -25,20 +25,11 @@ public class ProxyPingListener implements Listener {
     }
 
     public final void updateMessages() {
-
-        //List<ServerPing.PlayerInfo> playerInfoList = new ArrayList<>();
-
-        //for(String message : plugin.getConfig().get().getStringList("players-hover-messages"))
-            //playerInfoList.add(new ServerPing.PlayerInfo(ChatColor.translateAlternateColorCodes('&', message), ""));
-
-        String messages = ChatColor.translateAlternateColorCodes('&', String.join("\n", plugin.getConfig().get().getStringList("players-hover-messages")));
-
-        //serverPing.getPlayers().setSample((ServerPing.PlayerInfo[]) playerInfoArrayList.toArray());
-        //this.playerInfoArray = new ServerPing.PlayerInfo[playerInfoList.size()];
-
-        //for(byte i = 0 ; i < playerInfoList.size() ; i++) {
-            //this.playerInfoArray[i] = playerInfoList.get(i);
-        //}
+        String messages = ChatColor.translateAlternateColorCodes('&',
+                String.join(
+                        "\n", plugin.getConfig().get().getStringList("players-hover-messages")
+                )
+        );
 
         this.playerInfoArray = new ServerPing.PlayerInfo[] {new ServerPing.PlayerInfo(messages, "")};
     }
@@ -56,17 +47,6 @@ public class ProxyPingListener implements Listener {
                 serverPing.getPlayers().setOnline(0);
                 serverPing.getPlayers().setMax(0);
             }
-
-            /*
-            if(plugin.getConfig().get().getBoolean("enable-players-hover-message")) {
-                serverPing.getPlayers().setSample(new ServerPing.PlayerInfo[]{
-                        new ServerPing.PlayerInfo(plugin.getConfig().getString("players-hover-message"), "")
-                });
-
-            } else {
-                serverPing.getPlayers().setSample(null);
-            }
-             */
 
             if(plugin.getConfig().get().getBoolean("enable-players-hover-message"))
                 serverPing.getPlayers().setSample(this.playerInfoArray);
