@@ -59,14 +59,14 @@ public class ConfigurationUtil {
         });
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void createConfiguration() {
         try {
             final File file = new File(plugin.getDataFolder(), this.fileName);
 
             if(!file.exists()) {
                 if(!file.getParentFile().exists()) {
-                    file.getParentFile().mkdirs();
+                    if(!file.getParentFile().mkdirs()) throw
+                            new IOException("Can't create parent directories");
                 }
 
                 InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(this.fileName);
