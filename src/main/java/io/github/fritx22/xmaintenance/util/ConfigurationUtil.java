@@ -24,7 +24,7 @@ public class ConfigurationUtil {
     private final XMaintenance plugin;
     private final String fileName;
 
-    public ConfigurationUtil(final XMaintenance plugin, final String fileName) {
+    public ConfigurationUtil(XMaintenance plugin, String fileName) {
         this.plugin = plugin;
         this.fileName = fileName;
     }
@@ -61,7 +61,7 @@ public class ConfigurationUtil {
 
     public void createConfiguration() {
         try {
-            final File file = new File(plugin.getDataFolder(), this.fileName);
+            File file = new File(plugin.getDataFolder(), this.fileName);
 
             if(!file.exists()) {
                 if(!file.getParentFile().exists()) {

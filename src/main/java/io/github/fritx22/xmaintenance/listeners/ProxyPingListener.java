@@ -24,7 +24,7 @@ public class ProxyPingListener implements Listener {
         this.updateMessages();
     }
 
-    public final void updateMessages() {
+    public void updateMessages() {
         String messages = ChatColor.translateAlternateColorCodes('&',
                 String.join(
                         "\n", plugin.getConfig().get().getStringList("players-hover-messages")
@@ -36,9 +36,9 @@ public class ProxyPingListener implements Listener {
 
     @SuppressWarnings("unused")
     @EventHandler(priority = 64)
-    public void onProxyPing(final ProxyPingEvent e) {
+    public void onProxyPing(ProxyPingEvent e) {
         if(e.getResponse() != null && plugin.getStatusConfig().get().getBoolean("maintenance-enabled")) {
-            final ServerPing serverPing = e.getResponse();
+            ServerPing serverPing = e.getResponse();
 
             serverPing.getVersion().setProtocol(plugin.getConfig().get().getInt("fake-version-protocol-number"));
             serverPing.getVersion().setName(plugin.getConfig().get().getString("ping-text"));

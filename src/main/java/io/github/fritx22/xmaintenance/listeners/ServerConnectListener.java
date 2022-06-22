@@ -60,7 +60,7 @@ public class ServerConnectListener implements Listener {
     }
 
 
-    private void cancelConnection(final ServerConnectEvent e) {
+    private void cancelConnection(ServerConnectEvent e) {
         e.setCancelled(true);
         e.getPlayer().disconnect(new TextComponent(plugin.getConfig().getString("kick-message")));
 
@@ -69,9 +69,9 @@ public class ServerConnectListener implements Listener {
 
         //messages.forEach((message) -> messages.set(messages.indexOf(message), message.replace("%player%", e.getPlayer().getName())));
 
-        final List<TextComponent> messages = new ArrayList<>();
+        List<TextComponent> messages = new ArrayList<>();
 
-        for(final String message : plugin.getConfig().get().getStringList("admin-alert-messages")) {
+        for(String message : plugin.getConfig().get().getStringList("admin-alert-messages")) {
             messages.add(new TextComponent(
                     ChatColor.translateAlternateColorCodes('&',
                             message.replace("%player%", e.getPlayer().getName())
