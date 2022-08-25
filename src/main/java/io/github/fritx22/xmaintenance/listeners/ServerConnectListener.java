@@ -49,7 +49,7 @@ public class ServerConnectListener implements Listener {
                         this.cancelConnection(e);
                     break;
                 case "SERVER":
-                    if(!(e.getReason() == ServerConnectEvent.Reason.JOIN_PROXY) || !(e.getReason() == ServerConnectEvent.Reason.LOBBY_FALLBACK))
+                    if(e.getReason() != ServerConnectEvent.Reason.JOIN_PROXY || e.getReason() != ServerConnectEvent.Reason.LOBBY_FALLBACK)
                         this.cancelConnection(e);
                     break;
             }
