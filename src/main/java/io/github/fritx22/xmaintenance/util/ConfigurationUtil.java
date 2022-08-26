@@ -7,7 +7,6 @@ You should have received a copy of the GNU General Public License along with XMa
 package io.github.fritx22.xmaintenance.util;
 
 import io.github.fritx22.xmaintenance.XMaintenance;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
@@ -16,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.logging.Level;
 
 public class ConfigurationUtil {
 
@@ -34,17 +32,23 @@ public class ConfigurationUtil {
     }
 
     public String getString(String path) {
-        return ChatColor.translateAlternateColorCodes('&', this.configuration.getString(path)
+        return StringUtils.parseColor(
+                this.configuration.getString(path)
                 .replace("%prefix%", this.configuration.getString("plugin-prefix"))
-                .replace("%status%", (plugin.getStatusConfig().get().getBoolean("maintenance-enabled")) ? "&aenabled" : "&cdisabled"));
+                .replace("%status%",
+                        (plugin.getStatusConfig().get().getBoolean("maintenance-enabled"))
+                                ? "&aenabled" : "&cdisabled"
+                )
+        );
     }
 
     public void loadConfiguration() {
         try{
             this.configuration = ConfigurationProvider.getProvider(YamlConfiguration.class).load(new File(plugin.getDataFolder(), fileName));
         } catch(IOException ex) {
-            plugin.getProxy().getLogger().log(Level.SEVERE, ("[%plugin%] Unable to load the configuration file " + fileName + ".")
-                    .replace("%plugin%", plugin.getDescription().getName()));
+            LoggingUtils.logError(
+                    StringUtils.formatPluginName("[%s] Unable to load the configuration file %s.", this.fileName)
+            );
         }
     }
 
@@ -53,8 +57,9 @@ public class ConfigurationUtil {
             try {
                 ConfigurationProvider.getProvider(YamlConfiguration.class).save(configuration, new File(plugin.getDataFolder(), fileName));
             } catch(IOException ex) {
-                plugin.getProxy().getLogger().log(Level.SEVERE, "[%plugin%] Unable to save the configuration."
-                        .replace("%plugin%", plugin.getDescription().getName()));
+                LoggingUtils.logError(
+                        StringUtils.formatPluginName("[%s] Unable to save the configuration file %s.", this.fileName)
+                );
             }
         });
     }
@@ -72,20 +77,23 @@ public class ConfigurationUtil {
                 InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(this.fileName);
 
                 if(inputStream == null) {
-                    plugin.getProxy().getLogger().severe(("[%plugin%] The configuration file " + this.fileName + " isn't in the plugin jar.")
-                            .replace("%plugin%", plugin.getDescription().getName()));
+                    LoggingUtils.logError(
+                            StringUtils.formatPluginName("[%s] The configuration file %s isn't in the plugin jar.", this.fileName)
+                    );
                     return;
                 }
 
                 Files.copy(inputStream, file.toPath());
 
-                plugin.getProxy().getLogger().info(("[%plugin%] The configuration file " + this.fileName + " has been created.")
-                        .replace("%plugin%", plugin.getDescription().getName()));
+                LoggingUtils.logError(
+                        String.format("[%s] The configuration file %s has been created.", plugin.getDescription().getName(), this.fileName)
+                );
 
             }
         } catch(Exception ex) {
-            plugin.getProxy().getLogger().severe(("[%plugin%] Unable to create the configuration file " + this.fileName + ".")
-                    .replace("%plugin%", plugin.getDescription().getName()));
+            LoggingUtils.logError(
+                    String.format("[%s] Unable to create the configuration file %s.", plugin.getDescription().getName(), this.fileName)
+            );
             ex.printStackTrace();
         }
     }
