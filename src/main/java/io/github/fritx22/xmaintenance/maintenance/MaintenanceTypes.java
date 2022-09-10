@@ -4,7 +4,7 @@ XMaintenance is free software: you can redistribute it and/or modify it under th
 XMaintenance is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with XMaintenance. If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.fritx22.xmaintenance.enums;
+package io.github.fritx22.xmaintenance.maintenance;
 
 public enum MaintenanceTypes {
     ALL, JOIN, SERVER, EMERGENCY
