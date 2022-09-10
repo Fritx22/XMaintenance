@@ -6,7 +6,7 @@
 
     <groupId>me.fritx22</groupId>
     <artifactId>XMaintenance</artifactId>
-    <version>0.1-BETA</version>
+    <version>0.1</version>
 
     <properties>
         <maven.compiler.target>17</maven.compiler.target>
