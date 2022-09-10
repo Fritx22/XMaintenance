@@ -7,7 +7,7 @@ You should have received a copy of the GNU General Public License along with XMa
 package io.github.fritx22.xmaintenance.commands;
 
 import io.github.fritx22.xmaintenance.XMaintenance;
-import io.github.fritx22.xmaintenance.enums.MaintenanceTypes;
+import io.github.fritx22.xmaintenance.maintenance.MaintenanceTypes;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.CommandSender;
