@@ -20,4 +20,8 @@ public class LoggingUtils {
         logger.warning(message);
     }
 
+    public static void logInfo(String message) {
+        logger.info(message);
+    }
+
 }

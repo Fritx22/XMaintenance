@@ -85,7 +85,7 @@ public class ConfigurationUtil {
 
                 Files.copy(inputStream, file.toPath());
 
-                LoggingUtils.logError(
+                LoggingUtils.logInfo(
                         String.format("[%s] The configuration file %s has been created.", plugin.getDescription().getName(), this.fileName)
                 );
 
