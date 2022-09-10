@@ -18,12 +18,16 @@ public class MessagingManager {
         this.componentBuilder = new ComponentBuilder();
     }
 
-    public void sendConsoleMessage(String message) {
-        this.console.sendMessage(parse(message));
+    public void sendConsoleMessage(String... messages) {
+        for(String message : messages) {
+            this.console.sendMessage(parse(message));
+        }
     }
 
-    public void sendPlayerMessage(ProxiedPlayer player, String message) {
-        player.sendMessage(parse(message));
+    public void sendPlayerMessage(ProxiedPlayer player, String... messages) {
+        for(String message : messages) {
+            player.sendMessage(parse(message));
+        }
     }
 
     public BaseComponent[] parse(String message) {
