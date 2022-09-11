@@ -4,7 +4,6 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class MessagingManager {
 
@@ -24,9 +23,9 @@ public class MessagingManager {
         }
     }
 
-    public void sendPlayerMessage(ProxiedPlayer player, String... messages) {
+    public void sendMessage(CommandSender sender, String... messages) {
         for(String message : messages) {
-            player.sendMessage(parse(message));
+            sender.sendMessage(parse(message));
         }
     }
 
