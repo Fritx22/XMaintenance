@@ -8,6 +8,7 @@ package io.github.fritx22.xmaintenance.commands;
 
 import io.github.fritx22.xmaintenance.XMaintenance;
 import io.github.fritx22.xmaintenance.maintenance.MaintenanceTypes;
+import io.github.fritx22.xmaintenance.manager.MessagingManager;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.CommandSender;
@@ -17,39 +18,46 @@ public class MaintenanceCommand extends Command {
 
     private final XMaintenance plugin;
 
-    public MaintenanceCommand(XMaintenance plugin) {
+    private final MessagingManager messagingManager;
+
+    public MaintenanceCommand(XMaintenance plugin, MessagingManager messagingManager) {
         super("maintenance", "xmaintenance.admin", "xmaintenance", "xm");
         this.plugin = plugin;
+        this.messagingManager = messagingManager;
     }
 
     private void sendHelpMessage(CommandSender sender) {
-        //sender.sendMessage(new TextComponent("§c-----------------------------------------------------"));
-        sender.sendMessage(new TextComponent("§6          XMaintenance §7- Plugin made by Fritx22"));
-        sender.sendMessage(new TextComponent(""));
-        sender.sendMessage(new TextComponent("§7Status: " + ( (plugin.getStatusConfig().get().getBoolean("maintenance-enabled")) ? "§aenabled" + " §7[" + plugin.getStatusConfig().getString("maintenance-type") + "§7]" : "§cdisabled" )));
-        sender.sendMessage(new TextComponent(""));
-        sender.sendMessage(new TextComponent("§7/maintenance enable <type> §7- Enables the maintenance mode"));
-        sender.sendMessage(new TextComponent(""));
-        sender.sendMessage(new TextComponent("§7Maintenance types:"));
-        sender.sendMessage(new TextComponent("§aALL: §7Block connections to all servers"));
-        sender.sendMessage(new TextComponent("§aJOIN: §7Block only new connections to the proxy"));
-        sender.sendMessage(new TextComponent("§aSERVER: §7Block only server changes so default & fallback server is accessible"));
-        sender.sendMessage(new TextComponent("§cEMERGENCY: §7ALL mode + No bypass + Kick-all"));
-        sender.sendMessage(new TextComponent(""));
-        sender.sendMessage(new TextComponent("§a/maintenance disable §7- Disable maintenance mode"));
-        sender.sendMessage(new TextComponent("§a/maintenance reload §7- Reload plugin configuration"));
-        //sender.sendMessage(new TextComponent("§c-----------------------------------------------------"));
+        messagingManager.sendMessage(
+                sender,
+                "§6          XMaintenance §7- Plugin made by Fritx22",
+                "",
+                "§7Status: " + ((plugin.getStatusConfig().get().getBoolean("maintenance-enabled"))
+                        ? "§aenabled" + " §7[" + plugin.getStatusConfig()
+                        .getString("maintenance-type") + "§7]"
+                        : "§cdisabled"),
+                "",
+                "§7/maintenance enable <type> §7- Enables the maintenance mode",
+                "",
+                "§7Maintenance types:",
+                "§aALL: §7Block connections to all servers",
+                "§aJOIN: §7Block only new connections to the proxy",
+                "§aSERVER: §7Block only server changes so default & fallback server is accessible",
+                "§cEMERGENCY: §7ALL mode + No bypass + Kick-all",
+                "",
+                "§a/maintenance disable §7- Disable maintenance mode",
+                "§a/maintenance reload §7- Reload plugin configuration"
+        );
 
     }
 
     public void execute(CommandSender sender, String[] args) {
 
-        if(sender instanceof ProxiedPlayer && !plugin.getConfig().get().getBoolean("allow-players")) {
+        if (sender instanceof ProxiedPlayer && !plugin.getConfig().get().getBoolean("allow-players")) {
             sender.sendMessage(new TextComponent("This command is disabled for players."));
             return;
         }
 
-        if(args.length != 1 && args.length != 2) {
+        if (args.length != 1 && args.length != 2) {
 
             this.sendHelpMessage(sender);
             return;

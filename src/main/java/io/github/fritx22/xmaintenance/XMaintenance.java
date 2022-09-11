@@ -40,18 +40,16 @@ public class XMaintenance extends Plugin {
         this.pingListener = new ProxyPingListener(this);
         ServerConnectListener connectListener = new ServerConnectListener(this);
 
-        this.getProxy().getPluginManager().registerCommand(this, new MaintenanceCommand(this));
+        this.getProxy().getPluginManager().registerCommand(this, new MaintenanceCommand(this, messagingManager));
         this.getProxy().getPluginManager().registerListener(this, pingListener);
         this.getProxy().getPluginManager().registerListener(this, connectListener);
 
-        this.messagingManager.sendConsoleMessage("");
         this.messagingManager.sendConsoleMessage(
-                "§6XMaintenance §f[v" + this.getDescription().getVersion() + "] has been enabled."
+                "",
+                "§6XMaintenance §f[v" + this.getDescription().getVersion() + "] has been enabled.",
+                "§7Developed by " + this.getDescription().getAuthor(),
+                ""
         );
-        this.messagingManager.sendConsoleMessage(
-                "§7Developed by " + this.getDescription().getAuthor()
-        );
-        this.messagingManager.sendConsoleMessage("");
     }
 
     @Override
