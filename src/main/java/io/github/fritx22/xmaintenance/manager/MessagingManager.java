@@ -17,16 +17,14 @@ public class MessagingManager {
         this.componentBuilder = new ComponentBuilder();
     }
 
-    public void sendConsoleMessage(String... messages) {
-        for(String message : messages) {
-            this.console.sendMessage(parse(message));
-        }
-    }
-
     public void sendMessage(CommandSender sender, String... messages) {
         for(String message : messages) {
             sender.sendMessage(parse(message));
         }
+    }
+
+    public void sendConsoleMessage(String... messages) {
+        sendMessage(this.console, messages);
     }
 
     public BaseComponent[] parse(String message) {
