@@ -28,8 +28,9 @@ public class MessagingManager {
     }
 
     public BaseComponent[] parse(String message) {
+        BaseComponent[] result = this.componentBuilder.append(message).create();
         this.componentBuilder.getParts().clear();
-        return this.componentBuilder.append(message).create();
+        return result;
     }
 
 }
