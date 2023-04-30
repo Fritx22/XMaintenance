@@ -12,15 +12,32 @@ import io.github.fritx22.xmaintenance.listeners.ProxyPingListener;
 import io.github.fritx22.xmaintenance.listeners.ServerConnectListener;
 import io.github.fritx22.xmaintenance.manager.MessagingManager;
 import io.github.fritx22.xmaintenance.util.ConfigurationUtil;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginDescription;
+import net.md_5.bungee.api.plugin.PluginManager;
 
 public class XMaintenance extends Plugin {
 
-    private final ConfigurationUtil config = new ConfigurationUtil(this, "config.yml");
-    private final ConfigurationUtil statusConfig = new ConfigurationUtil(this, "status.yml");
-    private final MessagingManager messagingManager = new MessagingManager(this.getProxy());
+    private final ProxyServer proxy;
+    private final PluginDescription description;
+    private final ConfigurationUtil config;
+    private final ConfigurationUtil statusConfig;
+    private final MessagingManager messagingManager;
+    private final PluginManager pluginManager = this.getProxy().getPluginManager();
 
     private ProxyPingListener pingListener;
+    private ServerConnectListener connectListener;
+
+    public XMaintenance() {
+        super();
+
+        this.proxy = this.getProxy();
+        this.description = this.getDescription();
+        this.config = new ConfigurationUtil(this, "config.yml");
+        this.statusConfig = new ConfigurationUtil(this, "status.yml");
+        this.messagingManager = new MessagingManager(this.proxy);
+    }
 
     @Override
     public void onEnable() {
@@ -38,24 +55,24 @@ public class XMaintenance extends Plugin {
                 );
 
         this.pingListener = new ProxyPingListener(this);
-        ServerConnectListener connectListener = new ServerConnectListener(this);
+        this.connectListener = new ServerConnectListener(this);
 
-        this.getProxy().getPluginManager().registerCommand(this, new MaintenanceCommand(this, messagingManager));
-        this.getProxy().getPluginManager().registerListener(this, pingListener);
-        this.getProxy().getPluginManager().registerListener(this, connectListener);
+        this.pluginManager.registerCommand(this, new MaintenanceCommand(this, messagingManager));
+        this.pluginManager.registerListener(this, this.pingListener);
+        this.pluginManager.registerListener(this, this.connectListener);
 
         this.messagingManager.sendConsoleMessage(
                 "",
-                "§6XMaintenance §f[v" + this.getDescription().getVersion() + "] has been enabled.",
-                "§7Developed by " + this.getDescription().getAuthor(),
+                "§6XMaintenance §f[v" + this.description.getVersion() + "] has been enabled.",
+                "§7Developed by " + this.description.getAuthor(),
                 ""
         );
     }
 
     @Override
     public void onDisable() {
-        this.getProxy().getPluginManager().unregisterListeners(this);
-        this.getProxy().getPluginManager().unregisterCommands(this);
+        this.pluginManager.unregisterListeners(this);
+        this.pluginManager.unregisterCommands(this);
     }
 
     public ConfigurationUtil getConfig() {
@@ -68,6 +85,10 @@ public class XMaintenance extends Plugin {
 
     public ProxyPingListener getPingListener() {
         return this.pingListener;
+    }
+
+    public ServerConnectListener getConnectListener() {
+        return this.connectListener;
     }
 
 }
