@@ -111,7 +111,7 @@ public class MaintenanceCommand extends Command {
             }
             case "reload" -> {
                 plugin.getConfig().loadConfiguration();
-                plugin.getPingListener().updateMessages();
+                plugin.getPingResponseManager().updateConfiguration();
                 sender.sendMessage(new TextComponent(plugin.getConfig().getString("plugin-prefix"
                 ) + "The configuration has been reloaded."));
             }

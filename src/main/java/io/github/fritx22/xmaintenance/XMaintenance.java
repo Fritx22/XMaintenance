@@ -7,10 +7,10 @@ You should have received a copy of the GNU General Public License along with XMa
 package io.github.fritx22.xmaintenance;
 
 import io.github.fritx22.xmaintenance.commands.MaintenanceCommand;
-import io.github.fritx22.xmaintenance.listeners.ProxyPingListener;
 
-import io.github.fritx22.xmaintenance.listeners.ServerConnectListener;
+import io.github.fritx22.xmaintenance.manager.ListenerManager;
 import io.github.fritx22.xmaintenance.manager.MessagingManager;
+import io.github.fritx22.xmaintenance.manager.PingResponseManager;
 import io.github.fritx22.xmaintenance.util.ConfigurationUtil;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -24,10 +24,9 @@ public class XMaintenance extends Plugin {
     private final ConfigurationUtil config;
     private final ConfigurationUtil statusConfig;
     private final MessagingManager messagingManager;
+    private final ListenerManager listenerManager;
+    private final PingResponseManager pingResponseManager;
     private final PluginManager pluginManager = this.getProxy().getPluginManager();
-
-    private ProxyPingListener pingListener;
-    private ServerConnectListener connectListener;
 
     public XMaintenance() {
         super();
@@ -37,6 +36,8 @@ public class XMaintenance extends Plugin {
         this.config = new ConfigurationUtil(this, "config.yml");
         this.statusConfig = new ConfigurationUtil(this, "status.yml");
         this.messagingManager = new MessagingManager(this.proxy);
+        this.listenerManager = new ListenerManager(this);
+        this.pingResponseManager = new PingResponseManager(this);
     }
 
     @Override
@@ -54,12 +55,9 @@ public class XMaintenance extends Plugin {
                         "The plugin internal configuration is broken! Please stop the proxy and delete the status.yml file."
                 );
 
-        this.pingListener = new ProxyPingListener(this);
-        this.connectListener = new ServerConnectListener(this);
 
         this.pluginManager.registerCommand(this, new MaintenanceCommand(this, messagingManager));
-        this.pluginManager.registerListener(this, this.pingListener);
-        this.pluginManager.registerListener(this, this.connectListener);
+        this.listenerManager.registerListeners();
 
         this.messagingManager.sendConsoleMessage(
                 "",
@@ -71,7 +69,7 @@ public class XMaintenance extends Plugin {
 
     @Override
     public void onDisable() {
-        this.pluginManager.unregisterListeners(this);
+        this.listenerManager.unregisterListeners();
         this.pluginManager.unregisterCommands(this);
     }
 
@@ -83,12 +81,12 @@ public class XMaintenance extends Plugin {
         return this.statusConfig;
     }
 
-    public ProxyPingListener getPingListener() {
-        return this.pingListener;
+    public ListenerManager getListenerManager() {
+        return this.listenerManager;
     }
 
-    public ServerConnectListener getConnectListener() {
-        return this.connectListener;
+    public PingResponseManager getPingResponseManager() {
+        return this.pingResponseManager;
     }
 
 }

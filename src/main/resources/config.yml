@@ -32,14 +32,25 @@ admin-alert-messages:
 # Message used when a player tries to enable/disable the maintenance mode, but it's already enabled/disabled.
 already-status: '%prefix%&7The maintenance mode is already %status%&7.'
 
-# If enabled, this will set the online and max players to zero when the server is under maintenance
-# Minecraft client don't show that information by default but is useful for hiding from web pages like mcsrvstat.us
-set-players-to-zero: true
+# If enabled, this will set custom online and maximum players
+# while the server is under maintenance
+players-editor:
+  max:
+    enable: true
+    value: 0
 
-enable-players-hover-message: true
-players-hover-messages:
-  - '&7XMaintenance - Default message'
-  - '&aYou can add multiple lines!'
+  online:
+    enable: true
+    value: 0
+
+# If enabled, this will set a custom message
+# in the player list while the server is under
+# maintenance
+players-hover:
+  enable: true
+  messages:
+    - '&7XMaintenance - Default message'
+    - '&aYou can add multiple lines!'
 
 # Integer number used by the client to know if the server is the same version, it's outdated, or it's a newer version
 # More information: https://minecraft.gamepedia.com/Protocol_version
