@@ -11,7 +11,7 @@ public class StringUtils {
 
     @NotNull
     private static final XMaintenance plugin = (XMaintenance) ProxyServer.getInstance().
-            getPluginManager().getPlugin("XMaintenance");
+            getPluginManager().getPlugin(XMaintenance.class.getSimpleName());
 
     @NotNull
     public static String formatString(@NotNull String original, String... strings) {
