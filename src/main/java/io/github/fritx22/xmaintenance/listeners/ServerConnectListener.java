@@ -64,11 +64,6 @@ public class ServerConnectListener implements Listener {
         e.setCancelled(true);
         e.getPlayer().disconnect(new TextComponent(plugin.getConfig().getString("kick-message")));
 
-        //ArrayList<TextComponent> messages = new ArrayList<TextComponent>(plugin.getConfig().get().getStringList("admin-alert-messages").forEach( (message) -> message.replace("%player%", e.getPlayer().getName())));
-        //List<String> messages = plugin.getConfig().get().getStringList("admin-alert-messages");
-
-        //messages.forEach((message) -> messages.set(messages.indexOf(message), message.replace("%player%", e.getPlayer().getName())));
-
         List<TextComponent> messages = new ArrayList<>();
 
         for(String message : plugin.getConfig().get().getStringList("admin-alert-messages")) {
@@ -79,9 +74,6 @@ public class ServerConnectListener implements Listener {
             ));
         }
 
-
-        //plugin.getProxy().getConsole().sendMessage(messages);
-        //messages.forEach((message) -> plugin.getProxy().getConsole().sendMessage(new TextComponent(message)));
         messages.forEach((message) -> plugin.getProxy().getConsole().sendMessage(message));
 
         for(ProxiedPlayer p : plugin.getProxy().getPlayers()) {
