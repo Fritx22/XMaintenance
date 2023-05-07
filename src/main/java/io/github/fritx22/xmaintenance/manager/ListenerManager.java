@@ -32,11 +32,15 @@ public class ListenerManager {
     }
 
     public void registerListeners() {
-        this.listeners.forEach((Class<? extends Listener> clazz, Listener listener) -> this.registerListener(listener));
+        this.listeners.forEach(
+                (Class<? extends Listener> clazz, Listener listener) -> this.registerListener(listener)
+        );
     }
 
     public void unregisterListeners() {
-        this.listeners.forEach((Class<? extends Listener> clazz, Listener listener) -> this.unregisterListener(listener));
+        this.listeners.forEach(
+                (Class<? extends Listener> clazz, Listener listener) -> this.unregisterListener(listener)
+        );
     }
 
     public void unregisterListener(Listener listener) {
