@@ -52,9 +52,5 @@ public class ListenerManager {
         this.listeners.putIfAbsent(listener.getClass(), listener);
     }
 
-    public boolean isRegistered(Listener listener) {
-        return this.listeners.containsKey(listener.getClass());
-    }
-
 
 }
