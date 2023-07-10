@@ -1,21 +1,24 @@
 package io.github.fritx22.xmaintenance.manager;
 
 import io.github.fritx22.xmaintenance.XMaintenance;
+import io.github.fritx22.xmaintenance.configuration.ConfigurationContainer;
+import io.github.fritx22.xmaintenance.configuration.MainConfiguration;
+import io.github.fritx22.xmaintenance.configuration.StatusConfiguration;
 import io.github.fritx22.xmaintenance.listeners.PlayerCountListener;
-import io.github.fritx22.xmaintenance.util.ConfigurationUtil;
 import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.config.Configuration;
+
+import java.util.List;
 
 public class PingResponseManager {
 
     private final XMaintenance plugin;
-    private final ConfigurationUtil config;
-    private final ConfigurationUtil statusConfig;
+    private final ConfigurationContainer<MainConfiguration> mainConfigContainer;
+    private final ConfigurationContainer<StatusConfiguration> statusConfigContainer;
     private final ListenerManager listenerManager;
     private final Listener playerCountListener;
 
@@ -26,8 +29,8 @@ public class PingResponseManager {
 
     public PingResponseManager(XMaintenance plugin) {
         this.plugin = plugin;
-        this.config = this.plugin.getConfig();
-        this.statusConfig = this.plugin.getStatusConfig();
+        this.mainConfigContainer = this.plugin.getMainConfigContainer();
+        this.statusConfigContainer = this.plugin.getStatusConfigContainer();
         this.listenerManager = this.plugin.getListenerManager();
         this.playerCountListener = new PlayerCountListener(this);
 
@@ -42,22 +45,25 @@ public class PingResponseManager {
     }
 
     public void updateConfiguration() {
-        Configuration config = this.config.get();
+        MainConfiguration mainConfig = this.mainConfigContainer.getConfig();
 
-        if(config.getBoolean("players-editor.max.enable")) {
-            this.players.setMax(config.getInt("players-editor.max.value"));
+        MainConfiguration.ToggledValue<Integer> max = mainConfig.getPlayersEditor().getMax();
+        if (max.isEnabled()) {
+            this.players.setMax(max.getValue());
         }
 
-        if(config.getBoolean("players-editor.online.enable")) {
+        MainConfiguration.ToggledValue<Integer> online = mainConfig.getPlayersEditor().getOnline();
+        if(online.isEnabled()) {
             this.listenerManager.unregisterListener(this.playerCountListener);
-            this.players.setOnline(config.getInt("players-editor.online.value"));
+            this.players.setOnline(online.getValue());
         } else {
             this.updatePlayerCount();
             this.listenerManager.registerListener(this.playerCountListener);
         }
 
-        if(config.getBoolean("players-hover.enable")) {
-            String message = String.join("\n", config.getStringList("players-hover.messages"));
+        MainConfiguration.ToggledValue<List<String>> playersHover = mainConfig.getPlayersHover();
+        if(playersHover.isEnabled()) {
+            String message = String.join("\n", playersHover.getValue());
             if(this.players.getSample()[0] == null) {
                 this.players.getSample()[0] = new ServerPing.PlayerInfo("", "");
             }
@@ -67,10 +73,9 @@ public class PingResponseManager {
             this.players.getSample()[0] = null;
         }
 
-        this.protocol.setName(config.getString("ping-text"));
+        this.protocol.setName(mainConfig.getPingText());
 
-        Configuration statusConfig = this.statusConfig.get();
-        this.protocol.setProtocol(statusConfig.getInt("fake-version-protocol-number"));
+        this.protocol.setProtocol(mainConfig.getFakeVersionProtocolNumber());
     }
 
     public void updatePlayerCount() {
@@ -78,14 +83,14 @@ public class PingResponseManager {
     }
 
     public ServerPing handlePing(ProxyPingEvent event) {
-        Configuration config = this.config.get();
-        Configuration statusConfig = this.statusConfig.get();
+        MainConfiguration mainConfig = this.mainConfigContainer.getConfig();
+        StatusConfiguration statusConfig = this.statusConfigContainer.getConfig();
 
-        if(!statusConfig.getBoolean("maintenance-enabled")) {
+        if(!statusConfig.isMaintenanceEnabled()) {
             return event.getResponse();
         }
 
-        if(!config.getBoolean("players-hover.enable")) {
+        if(!mainConfig.getPlayersHover().isEnabled()) {
             this.players.getSample()[0] = event.getResponse().getPlayers().getSample()[0];
         }
 

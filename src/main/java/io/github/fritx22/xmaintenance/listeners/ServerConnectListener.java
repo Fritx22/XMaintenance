@@ -7,6 +7,9 @@ You should have received a copy of the GNU General Public License along with XMa
 package io.github.fritx22.xmaintenance.listeners;
 
 import io.github.fritx22.xmaintenance.XMaintenance;
+import io.github.fritx22.xmaintenance.configuration.MainConfiguration;
+import io.github.fritx22.xmaintenance.configuration.StatusConfiguration;
+import io.github.fritx22.xmaintenance.maintenance.MaintenanceTypes;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -32,23 +35,31 @@ public class ServerConnectListener implements Listener {
 
         if(e.isCancelled()) return;
 
-        if(plugin.getStatusConfig().get().getBoolean("maintenance-enabled")) {
+        StatusConfiguration statusConfig = this.plugin.getStatusConfigContainer().getConfig();
 
-            String status = plugin.getStatusConfig().getString("maintenance-type");
+        if(statusConfig.isMaintenanceEnabled()) {
 
-            if(plugin.getConfig().get().getBoolean("enable-bypass") && e.getPlayer().hasPermission("xmaintenance.bypass") && !status.equals("EMERGENCY"))
+            MaintenanceTypes status = statusConfig.getMaintenanceType();
+
+            MainConfiguration mainConfig = this.plugin.getMainConfigContainer().getConfig();
+
+            if (
+                    mainConfig.enableBypass() &&
+                    e.getPlayer().hasPermission("xmaintenance.bypass") &&
+                    !status.equals(MaintenanceTypes.EMERGENCY)
+            )
                 return;
 
-            switch(status) {
-                case "ALL":
-                case "EMERGENCY":
+            switch (status) {
+                case ALL:
+                case EMERGENCY:
                     this.cancelConnection(e);
                     break;
-                case "JOIN":
+                case JOIN:
                     if(e.getReason() == ServerConnectEvent.Reason.JOIN_PROXY)
                         this.cancelConnection(e);
                     break;
-                case "SERVER":
+                case SERVER:
                     if(e.getReason() != ServerConnectEvent.Reason.JOIN_PROXY &&
                             e.getReason() != ServerConnectEvent.Reason.LOBBY_FALLBACK)
                         this.cancelConnection(e);
@@ -63,15 +74,16 @@ public class ServerConnectListener implements Listener {
 
     private void cancelConnection(ServerConnectEvent e) {
         e.setCancelled(true);
-        e.getPlayer().disconnect(new TextComponent(plugin.getConfig().getString("kick-message")));
+        MainConfiguration mainConfig = this.plugin.getMainConfigContainer().getConfig();
+        e.getPlayer().disconnect(new TextComponent(mainConfig.getKickMessage()));
 
         List<TextComponent> messages = new ArrayList<>();
 
-        for(String message : plugin.getConfig().get().getStringList("admin-alert-messages")) {
+        for(String message : mainConfig.getAdminAlertMessages()) {
             messages.add(new TextComponent(
                     ChatColor.translateAlternateColorCodes('&',
                             message.replace("%player%", e.getPlayer().getName())
-                                    .replace("%prefix%", plugin.getConfig().getString("plugin-prefix")))
+                                    .replace("%prefix%", mainConfig.getPluginPrefix()))
             ));
         }
 

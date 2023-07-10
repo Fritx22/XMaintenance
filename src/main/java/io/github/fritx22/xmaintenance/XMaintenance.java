@@ -7,7 +7,7 @@ You should have received a copy of the GNU General Public License along with XMa
 package io.github.fritx22.xmaintenance;
 
 import io.github.fritx22.xmaintenance.commands.MaintenanceCommand;
-
+import io.github.fritx22.xmaintenance.configuration.ConfigurationContainer;
 import io.github.fritx22.xmaintenance.configuration.MainConfiguration;
 import io.github.fritx22.xmaintenance.configuration.StatusConfiguration;
 import io.github.fritx22.xmaintenance.manager.ListenerManager;
@@ -17,8 +17,6 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginDescription;
 import net.md_5.bungee.api.plugin.PluginManager;
-import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 
 import java.nio.file.Path;
 
@@ -27,10 +25,8 @@ public class XMaintenance extends Plugin {
     @SuppressWarnings("FieldCanBeLocal")
     private final ProxyServer proxy;
     private final PluginDescription description;
-    private final HoconConfigurationLoader mainConfigLoader;
-    private MainConfiguration mainConfig;
-    private final HoconConfigurationLoader statusConfigLoader;
-    private StatusConfiguration statusConfig;
+    private final ConfigurationContainer<MainConfiguration> mainConfigContainer;
+    private final ConfigurationContainer<StatusConfiguration> statusConfigContainer;
     private final MessagingManager messagingManager;
     private final ListenerManager listenerManager;
     private final PingResponseManager pingResponseManager;
@@ -41,19 +37,19 @@ public class XMaintenance extends Plugin {
 
         this.proxy = this.getProxy();
         this.description = this.getDescription();
-        this.mainConfigLoader = HoconConfigurationLoader.builder().defaultOptions(
-                opts -> opts.shouldCopyDefaults(true)
-                        .header("XMaintenance plugin configuration\nCopyright (C) 2020 Fritx22")
-                ).path(Path.of("config.conf"))
-                .build();
-        this.statusConfigLoader = HoconConfigurationLoader.builder().defaultOptions(
-                opts -> opts.shouldCopyDefaults(true)
-                        .header(
-                                "Don't edit this file! "
-                                        + "This is for saving the maintenance status when the server is restarted"
-                        )
-                ).path(Path.of("status.conf"))
-                .build();
+        this.mainConfigContainer = ConfigurationContainer.load(
+                MainConfiguration.class,
+                this.getLogger(),
+                Path.of("config.conf"),
+                "XMaintenance plugin configuration\nCopyright (C) 2020 Fritx22"
+        );
+        this.statusConfigContainer = ConfigurationContainer.load(
+                StatusConfiguration.class,
+                this.getLogger(),
+                Path.of("status.conf"),
+                "Don't edit this file! " +
+                        "This is for saving the maintenance status when the server is restarted"
+        );
         this.messagingManager = new MessagingManager(this.proxy);
         this.listenerManager = new ListenerManager(this);
         this.pingResponseManager = new PingResponseManager(this);
@@ -61,8 +57,6 @@ public class XMaintenance extends Plugin {
 
     @Override
     public void onEnable() {
-        this.loadConfiguration();
-
         this.pluginManager.registerCommand(this, new MaintenanceCommand(this, messagingManager));
         this.listenerManager.registerListeners();
 
@@ -80,22 +74,12 @@ public class XMaintenance extends Plugin {
         this.pluginManager.unregisterCommands(this);
     }
 
-    public void loadConfiguration() {
-        try {
-            this.mainConfig = this.mainConfigLoader.load().get(MainConfiguration.class);
-            this.statusConfig = this.statusConfigLoader.load().get(StatusConfiguration.class);
-        } catch(ConfigurateException exception) {
-            this.getProxy().getLogger().severe("An error occurred while loading the configuration!");
-            exception.printStackTrace();
-        }
+    public ConfigurationContainer<MainConfiguration> getMainConfigContainer() {
+        return this.mainConfigContainer;
     }
 
-    public MainConfiguration getMainConfig() {
-        return this.mainConfig;
-    }
-
-    public StatusConfiguration getStatusConfig() {
-        return this.statusConfig;
+    public ConfigurationContainer<StatusConfiguration> getStatusConfigContainer() {
+        return this.statusConfigContainer;
     }
 
     public ListenerManager getListenerManager() {
