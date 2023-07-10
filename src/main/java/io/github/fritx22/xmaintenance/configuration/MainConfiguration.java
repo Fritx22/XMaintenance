@@ -8,6 +8,39 @@ import java.util.List;
 @SuppressWarnings({"unused", "FieldMayBeFinal", "FieldCanBeLocal"})
 @ConfigSerializable
 public class MainConfiguration {
+    @ConfigSerializable
+    public static class ToggledValue<C> {
+
+        public ToggledValue(C value) {
+            this.value = value;
+        }
+
+        private boolean enable = true;
+        private C value;
+
+        public boolean isEnabled() {
+            return this.enable;
+        }
+
+        public C getValue() {
+            return this.value;
+        }
+    }
+
+    @ConfigSerializable
+    public static class PlayersEditor {
+        private ToggledValue<Integer> max = new ToggledValue<>(0);
+        private ToggledValue<Integer> online = new ToggledValue<>(0);
+
+        public ToggledValue<Integer> getMax() {
+            return this.max;
+        }
+
+        public ToggledValue<Integer> getOnline() {
+            return this.online;
+        }
+    }
+
     @Comment("Plugin prefix for all the configurable messages")
     private String pluginPrefix = "&6[XMaintenance]&r ";
     @Comment("""
@@ -41,35 +74,29 @@ public class MainConfiguration {
             but it's already enabled/disabled.\
             """)
     private String alreadyStatus = "%prefix%&7The maintenance mode is already %status%&7.";
+
+    @Comment("""
+            If enabled, this will set custom online and maximum players
+            while the server is under maintenance.\
+            """)
+    private PlayersEditor playersEditor = new PlayersEditor();
+
     @Comment("""
             If enabled, this will set a custom message
             in the player list while the server is under
             maintenance\
             """)
-    private PlayersHover playersHover = new PlayersHover();
+    private ToggledValue<List<String>> playersHover = new ToggledValue<>(List.of(
+            "&7XMaintenance - Default message",
+            "&aYou can add multiple lines!"
+    ));
+
     @Comment("""
             Integer number used by the client to know if the server is the same version, \
             it's outdated, or it's a newer version.
             More information: https://minecraft.gamepedia.com/Protocol_version\
             """)
     private int fakeVersionProtocolNumber = -503;
-
-    @ConfigSerializable
-    static class PlayersHover {
-        private boolean enable = true;
-        private List<String> messages = List.of(
-                "&7XMaintenance - Default message",
-                "&aYou can add multiple lines!"
-        );
-
-        public boolean isEnabled() {
-            return this.enable;
-        }
-
-        public List<String> getMessages() {
-            return this.messages;
-        }
-    }
 
     public String getPluginPrefix() {
         return this.pluginPrefix;
@@ -103,7 +130,11 @@ public class MainConfiguration {
         return this.alreadyStatus;
     }
 
-    public PlayersHover getPlayersHover() {
+    public PlayersEditor getPlayersEditor() {
+        return this.playersEditor;
+    }
+
+    public ToggledValue<List<String>> getPlayersHover() {
         return this.playersHover;
     }
 
