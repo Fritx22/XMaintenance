@@ -78,7 +78,7 @@ public class ConfigurationContainer<C> {
     public CompletableFuture<Void> save() {
         return CompletableFuture.runAsync(() -> {
            try {
-               this.loader.save(this.root.set(this.clazz, this.config));
+               this.loader.save(this.root.set(this.clazz, this.config.get()));
            } catch (ConfigurateException exception) {
                this.logger.severe("An exception occurred while saving the configuration named " +
                        this.filePath.getFileName());
