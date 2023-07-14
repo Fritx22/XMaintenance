@@ -4,27 +4,27 @@ import io.github.fritx22.xmaintenance.maintenance.MaintenanceTypes;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
-@SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
 @ConfigSerializable
 public class StatusConfiguration {
-    private boolean maintenanceEnabled = false;
 
-    @Comment("Valid values: ALL, JOIN, SERVER, EMERGENCY")
-    private MaintenanceTypes maintenanceType = MaintenanceTypes.JOIN;
+  private boolean maintenanceEnabled = false;
 
-    public boolean isMaintenanceEnabled() {
-        return this.maintenanceEnabled;
-    }
+  @Comment("Valid values: ALL, JOIN, SERVER, EMERGENCY")
+  private MaintenanceTypes maintenanceType = MaintenanceTypes.JOIN;
 
-    public void setMaintenanceEnabled(boolean newValue) {
-        this.maintenanceEnabled = newValue;
-    }
+  public boolean isMaintenanceEnabled() {
+    return this.maintenanceEnabled;
+  }
 
-    public MaintenanceTypes getMaintenanceType() {
-        return this.maintenanceType;
-    }
+  public void setMaintenanceEnabled(boolean newValue) {
+    this.maintenanceEnabled = newValue;
+  }
 
-    public void setMaintenanceType(MaintenanceTypes newType) {
-        this.maintenanceType = newType;
-    }
+  public MaintenanceTypes getMaintenanceType() {
+    return this.maintenanceType;
+  }
+
+  public void setMaintenanceType(MaintenanceTypes newType) {
+    this.maintenanceType = newType;
+  }
 }

@@ -14,17 +14,17 @@ import net.md_5.bungee.event.EventHandler;
 
 public class ProxyPingListener implements Listener {
 
-    private final XMaintenance plugin;
-    private final PingResponseManager pingResponseManager;
+  private final XMaintenance plugin;
+  private final PingResponseManager pingResponseManager;
 
-    public ProxyPingListener(XMaintenance plugin) {
-        this.plugin = plugin;
-        this.pingResponseManager = plugin.getPingResponseManager();
-    }
+  public ProxyPingListener(XMaintenance plugin) {
+    this.plugin = plugin;
+    this.pingResponseManager = plugin.getPingResponseManager();
+  }
 
-    @SuppressWarnings("unused")
-    @EventHandler(priority = 64)
-    public void onProxyPing(ProxyPingEvent e) {
-        e.setResponse(this.pingResponseManager.handlePing(e));
-    }
+  @SuppressWarnings("unused")
+  @EventHandler(priority = 64)
+  public void onProxyPing(ProxyPingEvent e) {
+    e.setResponse(this.pingResponseManager.handlePing(e));
+  }
 }
