@@ -51,19 +51,16 @@ public class ServerConnectListener implements Listener {
                 return;
 
             switch (status) {
-                case ALL:
-                case EMERGENCY:
-                    this.cancelConnection(e);
-                    break;
-                case JOIN:
-                    if(e.getReason() == ServerConnectEvent.Reason.JOIN_PROXY)
+                case ALL, EMERGENCY -> this.cancelConnection(e);
+                case JOIN -> {
+                    if (e.getReason() == ServerConnectEvent.Reason.JOIN_PROXY)
                         this.cancelConnection(e);
-                    break;
-                case SERVER:
-                    if(e.getReason() != ServerConnectEvent.Reason.JOIN_PROXY &&
+                }
+                case SERVER -> {
+                    if (e.getReason() != ServerConnectEvent.Reason.JOIN_PROXY &&
                             e.getReason() != ServerConnectEvent.Reason.LOBBY_FALLBACK)
                         this.cancelConnection(e);
-                    break;
+                }
             }
 
 
