@@ -5,9 +5,10 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 import java.util.List;
 
-@SuppressWarnings({"unused", "FieldMayBeFinal", "FieldCanBeLocal"})
+@SuppressWarnings({"CanBeFinal", "FieldCanBeLocal", "FieldMayBeFinal"})
 @ConfigSerializable
 public class MainConfiguration {
+    @SuppressWarnings({"CanBeFinal", "FieldCanBeLocal", "FieldMayBeFinal", "unused"})
     @ConfigSerializable
     public static class ToggledValue<C> {
 
@@ -27,6 +28,7 @@ public class MainConfiguration {
         }
     }
 
+    @SuppressWarnings({"CanBeFinal", "FieldMayBeFinal", "unused"})
     @ConfigSerializable
     public static class PlayersEditor {
         private ToggledValue<Integer> max = new ToggledValue<>(0);
