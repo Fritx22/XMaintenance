@@ -15,9 +15,9 @@ public class ConfigurationContainer<C> {
     private final AtomicReference<C> config;
     private final Class<C> clazz;
     private final HoconConfigurationLoader loader;
-    private CommentedConfigurationNode root;
     private final Logger logger;
     private final Path filePath;
+    private CommentedConfigurationNode root;
 
     private ConfigurationContainer(
             final C config,
@@ -77,14 +77,14 @@ public class ConfigurationContainer<C> {
 
     public CompletableFuture<Void> save() {
         return CompletableFuture.runAsync(() -> {
-           try {
-               this.loader.save(this.root.set(this.clazz, this.config.get()));
-           } catch (ConfigurateException exception) {
-               this.logger.severe("An exception occurred while saving the configuration named " +
-                       this.filePath.getFileName());
-               exception.printStackTrace();
-               throw new CompletionException(exception);
-           }
+            try {
+                this.loader.save(this.root.set(this.clazz, this.config.get()));
+            } catch (ConfigurateException exception) {
+                this.logger.severe("An exception occurred while saving the configuration named " +
+                        this.filePath.getFileName());
+                exception.printStackTrace();
+                throw new CompletionException(exception);
+            }
         });
     }
 
