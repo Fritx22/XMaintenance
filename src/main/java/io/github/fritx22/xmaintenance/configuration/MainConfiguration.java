@@ -8,6 +8,7 @@ import java.util.List;
 @SuppressWarnings({"CanBeFinal", "FieldCanBeLocal", "FieldMayBeFinal"})
 @ConfigSerializable
 public class MainConfiguration {
+
     @SuppressWarnings({"CanBeFinal", "FieldCanBeLocal", "FieldMayBeFinal", "unused"})
     @ConfigSerializable
     public static class ToggledValue<C> {
@@ -45,32 +46,39 @@ public class MainConfiguration {
 
     @Comment("Plugin prefix for all the configurable messages")
     private String pluginPrefix = "&6[XMaintenance]&r ";
+
     @Comment("""
             This will be the name of the fake outdated server version
             It's red by default\
             """)
     private String pingText = "Maintenance";
+
     @Comment("""
             Enable bypass permission. The permission is "xmaintenance.bypass"
             "Note that emergency mode has no bypass\
             """)
     private boolean enableBypass = true;
+
     @Comment("""
             Whether to allow players to execute the plugin command
             The permission for the plugin command is "xmaintenance.admin"
             For security reasons the emergency mode can't be enabled by a player\
             """)
     private boolean allowPlayers = true;
+
     @Comment("Players will be kicked with this message if maintenance mode is enabled")
     private String kickMessage = "&cWe are under maintenance, please try again later.";
+
     @Comment("Kick message shown when staff enables the emergency maintenance mode")
     private String emergencyKickMessage = "&cThe staff enabled the emergency maintenance mode.";
+
     @Comment("All the players that have the permission \"xmaintenance.admin\" will see this messages")
     private List<String> adminAlertMessages = List.of(
             "&6&m----------------------------------------",
             "%prefix%&7The player &c%player% &7tried to join.",
             "&6&m----------------------------------------"
     );
+
     @Comment("""
             Message used when a player tries to enable/disable the maintenance mode, \
             but it's already enabled/disabled.\

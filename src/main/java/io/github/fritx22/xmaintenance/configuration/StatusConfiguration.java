@@ -8,6 +8,7 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 @ConfigSerializable
 public class StatusConfiguration {
     private boolean maintenanceEnabled = false;
+
     @Comment("Valid values: ALL, JOIN, SERVER, EMERGENCY")
     private MaintenanceTypes maintenanceType = MaintenanceTypes.JOIN;
 
