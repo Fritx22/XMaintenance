@@ -1,4 +1,5 @@
 main: io.github.fritx22.xmaintenance.XMaintenance
+# noinspection YAMLSchemaValidation
 name: ${name}
 description: Simple maintenance mode plugin
 author: Fritx22
