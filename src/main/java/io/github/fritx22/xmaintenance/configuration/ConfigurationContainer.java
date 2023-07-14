@@ -49,7 +49,7 @@ public class ConfigurationContainer<C> {
             CommentedConfigurationNode rootNode = loader.load();
             if (Files.notExists(filePath)) loader.save(rootNode);
             C config = rootNode.get(clazz);
-            return new ConfigurationContainer<C>(config, clazz, loader, rootNode, logger, filePath);
+            return new ConfigurationContainer<>(config, clazz, loader, rootNode, logger, filePath);
         } catch (ConfigurateException exception) {
             logger.severe("An exception occurred while loading configuration named " + filePath.getFileName());
             exception.printStackTrace();
