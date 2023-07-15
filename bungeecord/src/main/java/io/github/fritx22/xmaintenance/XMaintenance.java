@@ -14,10 +14,13 @@ import io.github.fritx22.xmaintenance.manager.ListenerManager;
 import io.github.fritx22.xmaintenance.manager.MessagingManager;
 import io.github.fritx22.xmaintenance.manager.PingResponseManager;
 import java.nio.file.Path;
+import java.util.Objects;
+import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginDescription;
 import net.md_5.bungee.api.plugin.PluginManager;
+import org.jetbrains.annotations.NotNull;
 
 public class XMaintenance extends Plugin {
 
@@ -30,6 +33,7 @@ public class XMaintenance extends Plugin {
   private final ListenerManager listenerManager;
   private final PingResponseManager pingResponseManager;
   private final PluginManager pluginManager = this.getProxy().getPluginManager();
+  private BungeeAudiences audiences;
 
   public XMaintenance() {
     super();
@@ -56,7 +60,11 @@ public class XMaintenance extends Plugin {
 
   @Override
   public void onEnable() {
-    this.pluginManager.registerCommand(this, new MaintenanceCommand(this, messagingManager));
+    this.audiences = BungeeAudiences.create(this);
+    this.pluginManager.registerCommand(
+        this,
+        new MaintenanceCommand(this, messagingManager)
+    );
     this.listenerManager.registerListeners();
 
     this.messagingManager.sendConsoleMessage(
@@ -71,6 +79,11 @@ public class XMaintenance extends Plugin {
   public void onDisable() {
     this.listenerManager.unregisterListeners();
     this.pluginManager.unregisterCommands(this);
+
+    if (this.audiences != null) {
+      this.audiences.close();
+      this.audiences = null;
+    }
   }
 
   public ConfigurationContainer<MainConfiguration> getMainConfigContainer() {
@@ -87,6 +100,10 @@ public class XMaintenance extends Plugin {
 
   public PingResponseManager getPingResponseManager() {
     return this.pingResponseManager;
+  }
+
+  public @NotNull BungeeAudiences getAudiences() {
+    return Objects.requireNonNull(this.audiences, "BungeeAudiences instance is null");
   }
 
 }

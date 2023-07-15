@@ -3,8 +3,13 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <packaging>pom</packaging>
 
   <name>XMaintenance</name>
+  <modules>
+    <module>bungeecord</module>
+    <module>common</module>
+  </modules>
   <groupId>io.github.fritx22</groupId>
   <artifactId>XMaintenance</artifactId>
   <version>0.1</version>
@@ -15,29 +20,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-
-  <repositories>
-    <repository>
-      <id>bungeecord-repo</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </repository>
-  </repositories>
-
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-shade-plugin</artifactId>
-          <version>3.5.0</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.3.0</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -48,125 +31,6 @@
           <target>17</target>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.5.0</version>
-        <configuration>
-          <!-- to do -->
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <filters>
-                <filter>
-                  <artifact>*:*</artifact>
-                  <includes>
-                    <include>**</include>
-                  </includes>
-                  <excludes>
-                    <exclude>META-INF/*.SF</exclude>
-                    <exclude>META-INF/*.DSA</exclude>
-                    <exclude>META-INF/*.RSA</exclude>
-                    <exclude>META-INF/maven/**</exclude>
-                    <exclude>META-INF/MANIFEST.MF</exclude>
-                    <exclude>META-INF/versions/9/module-info.class</exclude>
-                  </excludes>
-                </filter>
-              </filters>
-              <relocations>
-                <relocation>
-                  <pattern>org.spongepowered</pattern>
-                  <shadedPattern>${project.groupId}.shaded.org.spongepowered</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>org.intellij</pattern>
-                  <shadedPattern>${project.groupId}.shaded.org.intellij</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>org.checkerframework</pattern>
-                  <shadedPattern>${project.groupId}.shaded.org.checkerframework</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>org.jetbrains</pattern>
-                  <shadedPattern>${project.groupId}.shaded.jetbrains</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>com.</pattern>
-                  <shadedPattern>${project.groupId}.shaded.com.</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>io.leangen</pattern>
-                  <shadedPattern>${project.groupId}.shaded.io.leangen</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>META-INF/versions/10/org</pattern>
-                  <shadedPattern>META-INF/versions/10/${project.groupId}.shaded.org</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>META-INF/versions/16/org</pattern>
-                  <shadedPattern>META-INF/versions/16/${project.groupId}.shaded.org</shadedPattern>
-                </relocation>
-              </relocations>
-              <transformers>
-                <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <manifestEntries>
-                    <Multi-Release>true</Multi-Release>
-                  </manifestEntries>
-                </transformer>
-              </transformers>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.3.0</version>
-        <configuration>
-          <archive>
-            <addMavenDescriptor>false</addMavenDescriptor>
-          </archive>
-        </configuration>
-      </plugin>
     </plugins>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
   </build>
-
-  <dependencies>
-    <dependency>
-      <groupId>net.md-5</groupId>
-      <artifactId>bungeecord-api</artifactId>
-      <version>1.19-R0.1-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.md-5</groupId>
-      <artifactId>bungeecord-api</artifactId>
-      <version>1.19-R0.1-SNAPSHOT</version>
-      <type>javadoc</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jetbrains</groupId>
-      <artifactId>annotations</artifactId>
-      <version>23.0.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.spongepowered</groupId>
-      <artifactId>configurate-hocon</artifactId>
-      <version>4.1.2</version>
-    </dependency>
-  </dependencies>
 </project>
