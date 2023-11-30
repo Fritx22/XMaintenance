@@ -65,40 +65,48 @@
               </filters>
               <relocations>
                 <relocation>
-                  <pattern>org.spongepowered</pattern>
-                  <shadedPattern>${project.groupId}.shaded.org.spongepowered</shadedPattern>
+                  <pattern>org.spongepowered.configurate</pattern>
+                  <shadedPattern>${project.groupId}.shaded.org.spongepowered.configurate</shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>org.intellij</pattern>
-                  <shadedPattern>${project.groupId}.shaded.org.intellij</shadedPattern>
+                  <pattern>org.intellij.lang.annotations</pattern>
+                  <shadedPattern>${project.groupId}.shaded.org.intellij.lang.annotations</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>org.checkerframework</pattern>
                   <shadedPattern>${project.groupId}.shaded.org.checkerframework</shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>org.jetbrains</pattern>
-                  <shadedPattern>${project.groupId}.shaded.jetbrains</shadedPattern>
+                  <pattern>org.jetbrains.annotations</pattern>
+                  <shadedPattern>${project.groupId}.shaded.org.jetbrains.annotations</shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>com.</pattern>
-                  <shadedPattern>${project.groupId}.shaded.com.</shadedPattern>
+                  <pattern>com.google.errorprone.annotations</pattern>
+                  <shadedPattern>${project.groupId}.shaded.com.google.errorprone.annotations</shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>io.leangen</pattern>
-                  <shadedPattern>${project.groupId}.shaded.io.leangen</shadedPattern>
+                  <pattern>com.typesafe.config</pattern>
+                  <shadedPattern>${project.groupId}.shaded.com.typesafe.config</shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>META-INF/versions/10/org</pattern>
-                  <shadedPattern>META-INF/versions/10/${project.groupId}.shaded.org</shadedPattern>
+                  <pattern>io.leangen.geantyref</pattern>
+                  <shadedPattern>${project.groupId}.shaded.io.leangen.geantyref</shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>META-INF/versions/16/org</pattern>
-                  <shadedPattern>META-INF/versions/16/${project.groupId}.shaded.org</shadedPattern>
+                  <pattern>META-INF/versions/10/org.spongepowered.configurate</pattern>
+                  <shadedPattern>META-INF/versions/10/${project.groupId}.shaded.org.spongepowered.configurate</shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>net.kyori.</pattern>
-                  <shadedPattern>${project.groupId}.shaded.net.kyori.</shadedPattern>
+                  <pattern>META-INF/versions/16/org.spongepowered.configurate</pattern>
+                  <shadedPattern>META-INF/versions/16/${project.groupId}.shaded.org.spongepowered.configurate</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>net.kyori.adventure</pattern>
+                  <shadedPattern>${project.groupId}.shaded.net.kyori.adventure</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>net.kyori.examination</pattern>
+                  <shadedPattern>${project.groupId}.shaded.net.kyori.examination</shadedPattern>
                 </relocation>
               </relocations>
               <transformers>
