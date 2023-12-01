@@ -15,6 +15,7 @@ public class SimpleInstanceRegistry<E> implements InstanceRegistry<E> {
 
   private final Map<Class<? extends E>, E> map = new HashMap<>();
 
+  @SuppressWarnings("unchecked")
   @Override
   public <S extends E> S getInstance(Class<S> clazz) {
     return (S) this.map.get(clazz);

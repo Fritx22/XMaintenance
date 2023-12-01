@@ -18,9 +18,8 @@ public interface InstanceRegistry<E> {
 
   /**
    *
-   * @param clazz
-   * @return The current instance or null
-   * @param <S>
+   * @param clazz subclass of {@link E}
+   * @return the current instance or null
    */
   @Nullable
   <S extends E> S getInstance(Class<S> clazz);
@@ -28,9 +27,8 @@ public interface InstanceRegistry<E> {
   /**
    * Map the subclass to one of its instances.
    * The current value is replaced.
-   * @param clazz
-   * @param instance
-   * @param <S>
+   * @param clazz subclass of {@link E}
+   * @param instance instance of subclass
    */
   <S extends E> void registerInstance(Class<S> clazz, S instance);
 
@@ -39,13 +37,13 @@ public interface InstanceRegistry<E> {
    * An unchecked cast is needed to get
    * the class instance, but it's guaranteed to be safe
    * because of the {@link #registerInstance(Class, Object) registerInstance} method.
-   * @param action
+   * @param action consumer
    */
   void forEachEntry(BiConsumer<Class<? extends E>, E> action);
 
   /**
    * Accept a {@link java.util.function.Consumer} for each registry value.
-   * @param action
+   * @param action consumer
    */
   void forEachValue(Consumer<E> action);
 

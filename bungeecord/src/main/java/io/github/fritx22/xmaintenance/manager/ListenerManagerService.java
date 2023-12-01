@@ -38,6 +38,7 @@ public class ListenerManagerService extends SimpleInstanceRegistry<Listener> imp
     });
   }
 
+  @SuppressWarnings("unchecked")
   private <T extends Listener> void registerListenersHelper(Class<T> clazz, Listener instance) {
      this.registerInstance(clazz, (T) instance);
   }
