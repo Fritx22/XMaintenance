@@ -33,9 +33,8 @@ public class ListenerManagerService extends SimpleInstanceRegistry<Listener> imp
   }
 
   public void registerListeners() {
-    this.forEachEntry((Class<? extends Listener> clazz, Listener listener) -> {
-      this.registerListenersHelper(clazz, clazz.cast(listener));
-    });
+    this.forEachEntry((Class<? extends Listener> clazz, Listener listener) ->
+        this.registerListenersHelper(clazz, clazz.cast(listener)));
   }
 
   @SuppressWarnings("unchecked")

@@ -14,11 +14,9 @@ import net.md_5.bungee.event.EventHandler;
 
 public class ProxyPingListener implements Listener {
 
-  private final XMaintenance plugin;
   private final PingResponseManager pingResponseManager;
 
   public ProxyPingListener(XMaintenance plugin) {
-    this.plugin = plugin;
     this.pingResponseManager = plugin.getPingResponseManager();
   }
 

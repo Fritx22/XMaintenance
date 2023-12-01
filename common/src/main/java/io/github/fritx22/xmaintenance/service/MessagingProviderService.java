@@ -17,7 +17,7 @@ public interface MessagingProviderService extends Service, AudienceProvider {
    * a {@link java.lang.ClassCastException}.
    * @param obj command sender object of the current platform
    * @return the corresponding Audience instance
-   * @throws ClassCastException
+   * @throws ClassCastException if the object or platform is invalid
    */
   Audience sender(Object obj) throws ClassCastException;
 }
