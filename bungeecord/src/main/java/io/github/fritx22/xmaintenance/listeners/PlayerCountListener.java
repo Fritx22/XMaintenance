@@ -10,7 +10,9 @@ public class PlayerCountListener implements Listener {
 
   private final PingResponseManager pingResponseManager;
 
-  public PlayerCountListener(PingResponseManager pingResponseManager) {
+  public PlayerCountListener(
+      PingResponseManager pingResponseManager
+  ) {
     this.pingResponseManager = pingResponseManager;
   }
 
