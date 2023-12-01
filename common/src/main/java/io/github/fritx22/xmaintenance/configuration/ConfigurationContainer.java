@@ -42,15 +42,17 @@ public class ConfigurationContainer<C> {
       final String header
   ) {
     HoconConfigurationLoader loader = HoconConfigurationLoader.builder().defaultOptions(
-        options -> options.header(header)
+        options -> options.header(header).shouldCopyDefaults(true)
     ).path(filePath).build();
 
     try {
       CommentedConfigurationNode rootNode = loader.load();
+      C config = rootNode.get(clazz);
       if (Files.notExists(filePath)) {
+        logger.info("Path " + filePath + " does not exist, saving...");
+        rootNode.set(config);
         loader.save(rootNode);
       }
-      C config = rootNode.get(clazz);
       return new ConfigurationContainer<>(config, clazz, loader, rootNode, logger, filePath);
     } catch (ConfigurateException exception) {
       logger.severe(
