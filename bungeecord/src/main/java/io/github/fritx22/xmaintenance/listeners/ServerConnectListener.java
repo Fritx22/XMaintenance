@@ -8,13 +8,13 @@ package io.github.fritx22.xmaintenance.listeners;
 
 import io.github.fritx22.xmaintenance.XMaintenance;
 import io.github.fritx22.xmaintenance.configuration.MainConfiguration;
-import io.github.fritx22.xmaintenance.configuration.StatusConfiguration;
-import io.github.fritx22.xmaintenance.maintenance.MaintenanceTypes;
-import java.util.ArrayList;
+import io.github.fritx22.xmaintenance.maintenance.MaintenanceManager;
+import io.github.fritx22.xmaintenance.maintenance.MaintenancePlayer;
+import io.github.fritx22.xmaintenance.maintenance.TriggerReason;
+import io.github.fritx22.xmaintenance.service.MessagingProviderService;
 import java.util.List;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
@@ -23,78 +23,51 @@ import net.md_5.bungee.event.EventPriority;
 public class ServerConnectListener implements Listener {
 
   private final XMaintenance plugin;
+  private final MessagingProviderService messagingProviderService;
+  private final MaintenanceManager maintenanceManager;
 
-  public ServerConnectListener(XMaintenance plugin) {
+  public ServerConnectListener(
+      XMaintenance plugin,
+      MessagingProviderService messagingProviderService
+  ) {
     this.plugin = plugin;
+    this.messagingProviderService = messagingProviderService;
+    this.maintenanceManager = this.plugin.getMaintenanceManager();
   }
 
   @SuppressWarnings("unused")
   @EventHandler(priority = EventPriority.HIGHEST)
-  public void onServerConnect(ServerConnectEvent e) {
+  public void onServerConnect(ServerConnectEvent event) {
 
-    if (e.isCancelled()) {
+    if (event.isCancelled()) {
       return;
     }
 
-    StatusConfiguration statusConfig = this.plugin.getStatusConfigContainer().getConfig();
-
-    if (statusConfig.isMaintenanceEnabled()) {
-
-      MaintenanceTypes status = statusConfig.getMaintenanceType();
-
-      MainConfiguration mainConfig = this.plugin.getMainConfigContainer().getConfig();
-
-      if (
-          mainConfig.enableBypass() &&
-              e.getPlayer().hasPermission("xmaintenance.bypass") &&
-              !status.equals(MaintenanceTypes.EMERGENCY)
-      ) {
-        return;
-      }
-
-      switch (status) {
-        case ALL, EMERGENCY -> this.cancelConnection(e);
-        case JOIN -> {
-          if (e.getReason() == ServerConnectEvent.Reason.JOIN_PROXY) {
-            this.cancelConnection(e);
-          }
-        }
-        case SERVER -> {
-          if (e.getReason() != ServerConnectEvent.Reason.JOIN_PROXY &&
-              e.getReason() != ServerConnectEvent.Reason.LOBBY_FALLBACK) {
-            this.cancelConnection(e);
-          }
-        }
-      }
-
-
+    MaintenancePlayer player = this.maintenanceManager.getPlayer(event.getPlayer().getUniqueId());
+    TriggerReason reason = switch(event.getReason()) {
+      case JOIN_PROXY -> TriggerReason.PROXY_CONNECT;
+      case LOBBY_FALLBACK -> TriggerReason.DEFAULT_OR_FALLBACK;
+      default -> TriggerReason.UNKNOWN;
+    };
+    boolean allowed = this.maintenanceManager.isAllowed(player, reason);
+    if (!allowed) {
+      this.plugin.getLogger().info("Cancelling connection for player " + player.getName());
+      this.cancelConnection(event);
     }
 
   }
 
-
-  private void cancelConnection(ServerConnectEvent e) {
-    e.setCancelled(true);
+  private void cancelConnection(ServerConnectEvent event) {
+    event.setCancelled(true);
     MainConfiguration mainConfig = this.plugin.getMainConfigContainer().getConfig();
-    e.getPlayer().disconnect(new TextComponent(mainConfig.getKickMessage()));
+    MaintenancePlayer player = this.maintenanceManager.getPlayer(event.getPlayer().getUniqueId());
+    player.disconnect(mainConfig.getKickMessage());
 
-    List<TextComponent> messages = new ArrayList<>();
+    List<Component> messages = mainConfig.getAdminAlertMessages(player.getName());
 
-    for (String message : mainConfig.getAdminAlertMessages()) {
-      messages.add(new TextComponent(
-          ChatColor.translateAlternateColorCodes('&',
-              message.replace("%player%", e.getPlayer().getName())
-                  .replace("%prefix%", mainConfig.getPluginPrefix()))
-      ));
-    }
-
-    messages.forEach((message) -> plugin.getProxy().getConsole().sendMessage(message));
-
-    for (ProxiedPlayer p : plugin.getProxy().getPlayers()) {
-      if (p.hasPermission("xmaintenance.admin")) {
-        messages.forEach(p::sendMessage);
-      }
-    }
+    // TODO: Should we save this Audience?
+    Audience admins = this.messagingProviderService.permission("xmaintenance.admin");
+    messages.forEach(admins::sendMessage);
 
   }
 
