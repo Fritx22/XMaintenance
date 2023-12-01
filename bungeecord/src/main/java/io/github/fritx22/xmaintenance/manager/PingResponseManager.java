@@ -3,34 +3,36 @@ package io.github.fritx22.xmaintenance.manager;
 import io.github.fritx22.xmaintenance.XMaintenance;
 import io.github.fritx22.xmaintenance.configuration.ConfigurationContainer;
 import io.github.fritx22.xmaintenance.configuration.MainConfiguration;
-import io.github.fritx22.xmaintenance.configuration.StatusConfiguration;
 import io.github.fritx22.xmaintenance.listeners.PlayerCountListener;
+import io.github.fritx22.xmaintenance.maintenance.MaintenanceManager;
 import java.util.List;
 import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.event.ProxyPingEvent;
-import net.md_5.bungee.api.plugin.Listener;
+import org.jetbrains.annotations.NotNull;
 
 public class PingResponseManager {
 
   private final XMaintenance plugin;
   private final ConfigurationContainer<MainConfiguration> mainConfigContainer;
-  private final ConfigurationContainer<StatusConfiguration> statusConfigContainer;
-  private final ListenerManager listenerManager;
-  private final Listener playerCountListener;
+  private final ListenerManagerService listenerManager;
+  private final PlayerCountListener playerCountListener;
 
   private final Favicon favicon;
   private final ServerPing.Players players;
   private final ServerPing.Protocol protocol;
   private final ServerPing pingResult;
+  private final MaintenanceManager maintenanceManager;
 
-  public PingResponseManager(XMaintenance plugin) {
+  public PingResponseManager(
+      @NotNull XMaintenance plugin,
+      @NotNull ListenerManagerService listenerManager
+  ) {
     this.plugin = plugin;
     this.mainConfigContainer = this.plugin.getMainConfigContainer();
-    this.statusConfigContainer = this.plugin.getStatusConfigContainer();
-    this.listenerManager = this.plugin.getListenerManager();
+    this.listenerManager = listenerManager;
     this.playerCountListener = new PlayerCountListener(this);
 
     this.favicon = this.plugin.getProxy().getConfig().getFaviconObject();
@@ -39,6 +41,8 @@ public class PingResponseManager {
 
     BaseComponent description = new ComponentBuilder("").getComponent(0);
     this.pingResult = new ServerPing(this.protocol, this.players, description, this.favicon);
+
+    this.maintenanceManager = this.plugin.getMaintenanceManager();
 
     this.updateConfiguration();
   }
@@ -57,10 +61,10 @@ public class PingResponseManager {
       this.players.setOnline(online.getValue());
     } else {
       this.updatePlayerCount();
-      this.listenerManager.registerListener(this.playerCountListener);
+      this.listenerManager.registerInstance(PlayerCountListener.class, this.playerCountListener);
     }
 
-    MainConfiguration.ToggledValue<List<String>> playersHover = mainConfig.getPlayersHover();
+    MainConfiguration.ToggledValue<List<String>> playersHover = mainConfig.getLegacyPlayersHover();
     if (playersHover.isEnabled()) {
       String message = String.join("\n", playersHover.getValue());
       if (this.players.getSample()[0] == null) {
@@ -72,7 +76,7 @@ public class PingResponseManager {
       this.players.getSample()[0] = null;
     }
 
-    this.protocol.setName(mainConfig.getPingText());
+    this.protocol.setName(mainConfig.getLegacyPingText());
 
     this.protocol.setProtocol(mainConfig.getFakeVersionProtocolNumber());
   }
@@ -82,12 +86,12 @@ public class PingResponseManager {
   }
 
   public ServerPing handlePing(ProxyPingEvent event) {
-    MainConfiguration mainConfig = this.mainConfigContainer.getConfig();
-    StatusConfiguration statusConfig = this.statusConfigContainer.getConfig();
 
-    if (!statusConfig.isMaintenanceEnabled()) {
+    if (!this.maintenanceManager.isEnabled()) {
       return event.getResponse();
     }
+
+    MainConfiguration mainConfig = this.mainConfigContainer.getConfig();
 
     if (!mainConfig.getPlayersHover().isEnabled()) {
       this.players.getSample()[0] = event.getResponse().getPlayers().getSample()[0];
