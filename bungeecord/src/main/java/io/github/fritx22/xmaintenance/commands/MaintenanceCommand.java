@@ -6,156 +6,186 @@ You should have received a copy of the GNU General Public License along with XMa
  */
 package io.github.fritx22.xmaintenance.commands;
 
+import static net.kyori.adventure.text.minimessage.MiniMessage.miniMessage;
+
 import io.github.fritx22.xmaintenance.XMaintenance;
 import io.github.fritx22.xmaintenance.configuration.MainConfiguration;
-import io.github.fritx22.xmaintenance.configuration.StatusConfiguration;
-import io.github.fritx22.xmaintenance.maintenance.MaintenanceTypes;
-import io.github.fritx22.xmaintenance.manager.MessagingManager;
+import io.github.fritx22.xmaintenance.maintenance.MaintenanceManager;
+import io.github.fritx22.xmaintenance.maintenance.MaintenanceType;
+import io.github.fritx22.xmaintenance.service.MessagingProviderService;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
 public class MaintenanceCommand extends Command {
 
   private final XMaintenance plugin;
+  private final MessagingProviderService messagingProviderService;
+  private final MaintenanceManager maintenanceManager;
+  private final String helpMessage;
 
-  private final MessagingManager messagingManager;
 
-  public MaintenanceCommand(XMaintenance plugin, MessagingManager messagingManager) {
+  public MaintenanceCommand(
+      XMaintenance plugin,
+      MessagingProviderService messagingProviderService,
+      MaintenanceManager maintenanceManager
+  ) {
     super("maintenance", "xmaintenance.admin", "xmaintenance", "xm");
     this.plugin = plugin;
-    this.messagingManager = messagingManager;
+    this.messagingProviderService = messagingProviderService;
+    this.maintenanceManager = maintenanceManager;
+
+    this.helpMessage = "<gold>          XMaintenance <gray>- Plugin made by Fritx22</gray></gold><br>"
+        + "<br>"
+        + "<gray>Status: </gray><status><br>"
+        + "<gray>/maintenance enable <type> - Enables the maintenance mode</gray><br>"
+        + "<br>"
+        + "<gray>Maintenance types:</gray><br>"
+        + "<green>ALL:</green> <gray>Block connections to all servers</gray><br>"
+        + "<green>JOIN:</green> <gray>Block only new connections to the proxy</gray><br>"
+        + "<green>SERVER:</green> <gray>Block only server changes so default & fallback server is accessible</gray><br>"
+        + "<red>EMERGENCY:</red> <gray>ALL mode + No bypass + Kick-all</gray><br>"
+        + "<br>"
+        + "<green>/maintenance disable</green> <gray>- Disable maintenance mode</gray><br>"
+        + "<green>/maintenance reload</green> <gray>- Reload plugin configuration</gray><br>";
   }
 
-  private void sendHelpMessage(CommandSender sender) {
-    StatusConfiguration config = this.plugin.getStatusConfigContainer().getConfig();
-    messagingManager.sendMessage(
-        sender,
-        "§6          XMaintenance §7- Plugin made by Fritx22",
-        "",
-        "§7Status: " + (config.isMaintenanceEnabled()
-            ? "§aenabled" + " §7[" + config.getMaintenanceType() + "§7]"
-            : "§cdisabled"),
-        "",
-        "§7/maintenance enable <type> §7- Enables the maintenance mode",
-        "",
-        "§7Maintenance types:",
-        "§aALL: §7Block connections to all servers",
-        "§aJOIN: §7Block only new connections to the proxy",
-        "§aSERVER: §7Block only server changes so default & fallback server is accessible",
-        "§cEMERGENCY: §7ALL mode + No bypass + Kick-all",
-        "",
-        "§a/maintenance disable §7- Disable maintenance mode",
-        "§a/maintenance reload §7- Reload plugin configuration"
-    );
+  private void sendHelpMessage(Audience audience) {
+    String status;
+    if (this.maintenanceManager.isEnabled()) {
+      status = "<green>enabled [" + this.maintenanceManager.getType() + "]</green><br>";
+    } else {
+      status = "<red>disabled</red><br>";
+    }
+    audience.sendMessage(miniMessage().deserialize(
+        this.helpMessage,
+        Placeholder.parsed("status", status)
+    ));
 
   }
 
   public void execute(CommandSender sender, String[] args) {
     MainConfiguration mainConfig = this.plugin.getMainConfigContainer().getConfig();
 
+    Audience senderAudience = this.messagingProviderService.sender(sender);
+
     if (sender instanceof ProxiedPlayer && !mainConfig.allowPlayers()) {
-      sender.sendMessage(new TextComponent("This command is disabled for players."));
+      senderAudience.sendMessage(Component.text("This command is disabled for players."));
       return;
     }
 
     if (args.length != 1 && args.length != 2) {
 
-      this.sendHelpMessage(sender);
+      this.sendHelpMessage(senderAudience);
       return;
     }
 
     switch (args[0]) {
       case "enable" -> {
         if (args.length != 2) {
-          this.sendHelpMessage(sender);
+          this.sendHelpMessage(senderAudience);
           return;
         }
 
-        StatusConfiguration statusConfig = this.plugin.getStatusConfigContainer().getConfig();
-
-        if (statusConfig.isMaintenanceEnabled()) {
-          sender.sendMessage(new TextComponent(mainConfig.getAlreadyStatus()));
+        if (this.maintenanceManager.isEnabled()) {
+          senderAudience.sendMessage(
+              mainConfig.getAlreadyStatus(this.maintenanceManager.getStatus()));
           return;
         }
         if (args[1].equalsIgnoreCase("EMERGENCY") && (sender instanceof ProxiedPlayer)) {
-          sender.sendMessage(new TextComponent(mainConfig.getPluginPrefix()
-              + "The emergency mode can only be enabled through the console."));
+          senderAudience.sendMessage(mainConfig.getPluginPrefix().append(Component.text(
+                  "The emergency mode can only be enabled through the console."
+              ))
+          );
           return;
         }
-        for (MaintenanceTypes type : MaintenanceTypes.values()) {
+        for (MaintenanceType type : MaintenanceType.values()) {
           if (type.name().equalsIgnoreCase(args[1])) {
-            statusConfig.setMaintenanceEnabled(true);
-            statusConfig.setMaintenanceType(type);
+            this.maintenanceManager.setType(type);
+            this.maintenanceManager.setEnabled(true);
 
-            plugin.getStatusConfigContainer().save()
+            this.maintenanceManager.saveStatusConfiguration()
                 .handleAsync((Void result, Throwable exception) -> {
-                  if (exception != null) {
-                    sender.sendMessage(new TextComponent(
-                        mainConfig.getPluginPrefix() +
-                            "§cAn error occurred while saving the status, check the console."
-                    ));
+                  if (exception == null) {
+                    return result;
                   }
+                  senderAudience.sendMessage(mainConfig.getPluginPrefix().append(
+                      miniMessage().deserialize(
+                          "<red>An error occurred while saving the status, check the console.</red>"
+                      ))
+                  );
                   return result;
                 });
 
-            if (args[1].equalsIgnoreCase("EMERGENCY")) {
-              for (ProxiedPlayer p : plugin.getProxy().getPlayers()) {
-                p.disconnect(new TextComponent(mainConfig.getEmergencyKickMessage()));
-              }
-            }
+            this.plugin.getLogger().info("Enabling " + type + " mode...");
 
-            sender.sendMessage(new TextComponent(mainConfig.getPluginPrefix()
-                + "§7The maintenance mode has been§a enabled §7[" + type.name() + "]"));
+            senderAudience.sendMessage(
+                mainConfig.getPluginPrefix().append(
+                    miniMessage().deserialize(
+                        "<gray>The maintenance mode has been <green>enabled</green> [<name>]</gray>",
+                        Placeholder.unparsed("name", type.toString())
+                    )
+                )
+            );
 
             return;
           }
         }
-        this.sendHelpMessage(sender);
+        this.sendHelpMessage(senderAudience);
       }
 
       case "disable" -> {
-        StatusConfiguration statusConfig = this.plugin.getStatusConfigContainer().getConfig();
 
-        if (!statusConfig.isMaintenanceEnabled()) {
-          sender.sendMessage(new TextComponent(mainConfig.getAlreadyStatus()));
+        if (!this.maintenanceManager.isEnabled()) {
+          senderAudience.sendMessage(
+              mainConfig.getAlreadyStatus(this.maintenanceManager.getStatus()));
           return;
         }
-        statusConfig.setMaintenanceEnabled(false);
-        plugin.getStatusConfigContainer().save().handleAsync((Void result, Throwable exception) -> {
-          if (exception != null) {
-            sender.sendMessage(new TextComponent(mainConfig.getPluginPrefix() +
-                "§cAn error occurred while saving the status, check the console."
-            ));
-          } else {
-            sender.sendMessage(new TextComponent(mainConfig.getPluginPrefix() +
-                "§7The maintenance mode has been§c disabled" + "§7."
-            ));
-          }
-          return result;
-        });
+        this.maintenanceManager.setEnabled(false);
+        this.maintenanceManager.saveStatusConfiguration().handleAsync(
+            (Void result, Throwable exception) -> {
+              if (exception != null) {
+                senderAudience.sendMessage(
+                    mainConfig.getPluginPrefix().append(
+                        Component.text(
+                            "An error occurred while saving the status, check the console.",
+                            NamedTextColor.RED))
+                );
+              } else {
+                senderAudience.sendMessage(mainConfig.getPluginPrefix().append(
+                    miniMessage().deserialize(
+                        "<gray>The maintenance mode has been <red>disabled</red>.</gray>"
+                    )
+                ));
+              }
+              return result;
+            });
       }
 
       case "reload" -> plugin.getMainConfigContainer().reload().thenAcceptAsync((Void result) ->
           this.plugin.getPingResponseManager().updateConfiguration()
       ).handleAsync((Void result, Throwable exception) -> {
         if (exception != null) {
-          sender.sendMessage(new TextComponent(
-              mainConfig.getPluginPrefix() +
-                  "§cAn error occurred while reloading the plugin configuration, check the console."
+          senderAudience.sendMessage(mainConfig.getPluginPrefix().append(
+              miniMessage().deserialize(
+                  "<red>An error occurred while reloading the plugin configuration, check the console.</red>"
+              )
           ));
         } else {
-          plugin.getPingResponseManager().updateConfiguration();
-          sender.sendMessage(new TextComponent(
-              mainConfig.getPluginPrefix() +
-                  "§aThe plugin configuration has been reloaded successfully."
+          senderAudience.sendMessage(mainConfig.getPluginPrefix().append(
+              miniMessage().deserialize(
+                  "<green>The plugin configuration has been reloaded successfully.</green>"
+              )
           ));
         }
         return result;
       });
 
-      default -> this.sendHelpMessage(sender);
+      default -> this.sendHelpMessage(senderAudience);
     }
 
   }
