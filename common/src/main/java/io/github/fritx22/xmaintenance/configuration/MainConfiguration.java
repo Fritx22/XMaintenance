@@ -1,6 +1,12 @@
 package io.github.fritx22.xmaintenance.configuration;
 
+import static net.kyori.adventure.text.minimessage.MiniMessage.miniMessage;
+import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection;
+
+import java.util.ArrayList;
 import java.util.List;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
@@ -9,7 +15,7 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 public class MainConfiguration {
 
   @Comment("Plugin prefix for all the configurable messages")
-  private String pluginPrefix = "&6[XMaintenance]&r ";
+  private String pluginPrefix = "<gold>[XMaintenance]</gold> ";
 
   @Comment("""
       This will be the name of the fake outdated server version
@@ -19,7 +25,7 @@ public class MainConfiguration {
 
   @Comment("""
       Enable bypass permission. The permission is "xmaintenance.bypass"
-      "Note that emergency mode has no bypass\
+      Note that emergency mode has no bypass\
       """)
   private boolean enableBypass = true;
 
@@ -31,23 +37,26 @@ public class MainConfiguration {
   private boolean allowPlayers = true;
 
   @Comment("Players will be kicked with this message if maintenance mode is enabled")
-  private String kickMessage = "&cWe are under maintenance, please try again later.";
+  private String kickMessage = "<red>We are under maintenance, please try again later.</red>";
 
   @Comment("Kick message shown when staff enables the emergency maintenance mode")
-  private String emergencyKickMessage = "&cThe staff enabled the emergency maintenance mode.";
+  private String emergencyKickMessage = "<red>The staff enabled the emergency maintenance mode.</red>";
 
-  @Comment("All the players that have the permission \"xmaintenance.admin\" will see this messages")
+  @Comment("""
+      All the players that have the permission "xmaintenance.admin" will see this messages\
+      You must use "<player>" placeholder to get the player name\
+      """)
   private List<String> adminAlertMessages = List.of(
-      "&6&m----------------------------------------",
-      "%prefix%&7The player &c%player% &7tried to join.",
-      "&6&m----------------------------------------"
+      "<gold><st>----------------------------------------</st></gold>",
+      "<prefix><gray>The player <red><player></red> tried to join.</gray>",
+      "<gold><st>----------------------------------------</st></gold>"
   );
 
   @Comment("""
       Message used when a player tries to enable/disable the maintenance mode, \
       but it's already enabled/disabled.\
       """)
-  private String alreadyStatus = "%prefix%&7The maintenance mode is already %status%&7.";
+  private String alreadyStatus = "<prefix><gray>The maintenance mode is already <status>.";
 
   @Comment("""
       If enabled, this will set custom online and maximum players
@@ -60,10 +69,13 @@ public class MainConfiguration {
       in the player list while the server is under
       maintenance\
       """)
-  private ToggledValue<List<String>> playersHover = new ToggledValue<>(List.of(
-      "&7XMaintenance - Default message",
-      "&aYou can add multiple lines!"
+  private ToggledValue<List<String>> playersHover = ToggledValue.of(List.of(
+      "<gray>XMaintenance - Default message</gray>",
+      "<green>You can add multiple lines!</green>"
   ));
+
+  private transient ToggledValue<List<Component>> playersHoverCache;
+  private transient ToggledValue<List<String>> legacyPlayersHoverCache;
 
   @Comment("""
       Integer number used by the client to know if the server is the same version, \
@@ -72,12 +84,16 @@ public class MainConfiguration {
       """)
   private int fakeVersionProtocolNumber = -503;
 
-  public String getPluginPrefix() {
-    return this.pluginPrefix;
+  public Component getPluginPrefix() {
+    return miniMessage().deserialize(this.pluginPrefix);
   }
 
-  public String getPingText() {
-    return this.pingText;
+  public Component getPingText() {
+    return miniMessage().deserialize(this.pingText);
+  }
+
+  public String getLegacyPingText() {
+    return legacySection().serialize(this.getPingText());
   }
 
   public boolean enableBypass() {
@@ -88,28 +104,63 @@ public class MainConfiguration {
     return this.allowPlayers;
   }
 
-  public String getKickMessage() {
-    return this.kickMessage;
+  public Component getKickMessage() {
+    return miniMessage().deserialize(this.kickMessage);
   }
 
-  public String getEmergencyKickMessage() {
-    return this.emergencyKickMessage;
+  public Component getEmergencyKickMessage() {
+    return miniMessage().deserialize(this.emergencyKickMessage);
   }
 
-  public List<String> getAdminAlertMessages() {
-    return this.adminAlertMessages;
+  public List<Component> getAdminAlertMessages(String playerName) {
+    List<Component> result = new ArrayList<>();
+    for (String str : this.adminAlertMessages) {
+      result.add(
+          miniMessage().deserialize(
+              str,
+              Placeholder.component("player", Component.text(playerName)),
+              Placeholder.component("prefix", this.getPluginPrefix())
+          )
+      );
+    }
+    return result;
   }
 
-  public String getAlreadyStatus() {
-    return this.alreadyStatus;
+  public Component getAlreadyStatus(String status) {
+    return miniMessage().deserialize(
+        this.alreadyStatus,
+        Placeholder.component("prefix", this.getPluginPrefix()),
+        Placeholder.unparsed("status", status)
+    );
   }
 
   public PlayersEditor getPlayersEditor() {
     return this.playersEditor;
   }
 
-  public ToggledValue<List<String>> getPlayersHover() {
-    return this.playersHover;
+  public ToggledValue<List<Component>> getPlayersHover() {
+    if (this.playersHoverCache != null) return playersHoverCache;
+
+    ToggledValue<List<Component>> tv = new ToggledValue<>();
+    tv.value = new ArrayList<>();
+    for (String str : this.playersHover.getValue()) {
+      tv.value.add(miniMessage().deserialize(str));
+    }
+    this.playersHoverCache = tv;
+    return tv;
+  }
+
+  public ToggledValue<List<String>> getLegacyPlayersHover() {
+    if (this.legacyPlayersHoverCache != null) return legacyPlayersHoverCache;
+
+    ToggledValue<List<String>> tv = new ToggledValue<>();
+    tv.value = new ArrayList<>();
+    for (String str : this.playersHover.getValue()) {
+      Component component = miniMessage().deserialize(str);
+      tv.value.add(legacySection().serialize(component));
+    }
+    this.legacyPlayersHoverCache = tv;
+    return tv;
   }
 
   public int getFakeVersionProtocolNumber() {
@@ -123,10 +174,6 @@ public class MainConfiguration {
     private boolean enable = true;
     private C value;
 
-    public ToggledValue(C value) {
-      this.value = value;
-    }
-
     public boolean isEnabled() {
       return this.enable;
     }
@@ -134,14 +181,20 @@ public class MainConfiguration {
     public C getValue() {
       return this.value;
     }
+
+    public static <C> ToggledValue<C> of(C value) {
+      ToggledValue<C> tv = new ToggledValue<>();
+      tv.value = value;
+      return tv;
+    }
   }
 
   @SuppressWarnings({"CanBeFinal", "FieldMayBeFinal", "unused"})
   @ConfigSerializable
   public static class PlayersEditor {
 
-    private ToggledValue<Integer> max = new ToggledValue<>(0);
-    private ToggledValue<Integer> online = new ToggledValue<>(0);
+    private ToggledValue<Integer> max = ToggledValue.of(0);
+    private ToggledValue<Integer> online = ToggledValue.of(0);
 
     public ToggledValue<Integer> getMax() {
       return this.max;
