@@ -9,6 +9,7 @@ package io.github.fritx22.xmaintenance.manager;
 import io.github.fritx22.xmaintenance.XMaintenance;
 import io.github.fritx22.xmaintenance.configuration.ConfigurationContainer;
 import io.github.fritx22.xmaintenance.configuration.MainConfiguration;
+import io.github.fritx22.xmaintenance.configuration.MainConfiguration.ToggledValue;
 import io.github.fritx22.xmaintenance.listeners.PlayerCountListener;
 import io.github.fritx22.xmaintenance.maintenance.MaintenanceManager;
 import java.util.List;
@@ -16,6 +17,7 @@ import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,6 +33,7 @@ public class PingResponseManager {
   private final ServerPing.Protocol protocol;
   private final ServerPing pingResult;
   private final MaintenanceManager maintenanceManager;
+  private TextComponent messageOfTheDay;
 
   public PingResponseManager(
       @NotNull XMaintenance plugin,
@@ -85,6 +88,15 @@ public class PingResponseManager {
     this.protocol.setName(mainConfig.getLegacyPingText());
 
     this.protocol.setProtocol(mainConfig.getFakeVersionProtocolNumber());
+
+    ToggledValue<List<String>> messageOfTheDay = mainConfig.getLegacyMaintenanceMessageOfTheDay();
+    if (messageOfTheDay.isEnabled()) {
+      this.messageOfTheDay = new TextComponent(
+          String.join("\n", messageOfTheDay.getValue())
+      );
+    } else {
+      this.messageOfTheDay = null;
+    }
   }
 
   public void updatePlayerCount() {
@@ -101,6 +113,13 @@ public class PingResponseManager {
 
     if (!mainConfig.getPlayersHover().isEnabled()) {
       this.players.getSample()[0] = event.getResponse().getPlayers().getSample()[0];
+    }
+
+    if (this.messageOfTheDay == null) {
+      ServerPing response = event.getResponse();
+      this.pingResult.setDescriptionComponent(response.getDescriptionComponent());
+    } else {
+      this.pingResult.setDescriptionComponent(this.messageOfTheDay);
     }
 
     return this.pingResult;

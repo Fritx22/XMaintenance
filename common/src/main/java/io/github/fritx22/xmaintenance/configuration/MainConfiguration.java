@@ -90,6 +90,17 @@ public class MainConfiguration {
       """)
   private int fakeVersionProtocolNumber = -503;
 
+  @Comment("""
+      List of messages in the MOTD. You can add up to two lines.
+      If disabled the MOTD will not be modified\
+      """)
+  private ToggledValue<List<String>> maintenanceMessageOfTheDay = ToggledValue.of(List.of(
+      "<gray>XMaintenance - Default MOTD</gray>",
+      "<aqua>You can add multiple lines!</aqua>"
+  ));
+  private transient ToggledValue<List<Component>> maintenanceMessageOfTheDayCache;
+  private transient ToggledValue<List<String>> legacyMaintenanceMessageOfTheDayCache;
+
   public Component getPluginPrefix() {
     return miniMessage().deserialize(this.pluginPrefix);
   }
@@ -174,6 +185,41 @@ public class MainConfiguration {
 
   public int getFakeVersionProtocolNumber() {
     return this.fakeVersionProtocolNumber;
+  }
+
+  public ToggledValue<List<Component>> getMaintenanceMessageOfTheDay() {
+    if (this.maintenanceMessageOfTheDayCache != null) return this.maintenanceMessageOfTheDayCache;
+
+    List<String> value = this.maintenanceMessageOfTheDay.getValue();
+    List<Component> result = new ArrayList<>(value.size());
+    for (String str : value) {
+      result.add(miniMessage().deserialize(str));
+    }
+
+    this.maintenanceMessageOfTheDayCache = ToggledValue.of(
+        result,
+        this.maintenanceMessageOfTheDay.isEnabled()
+    );
+    return this.maintenanceMessageOfTheDayCache;
+  }
+
+  public ToggledValue<List<String>> getLegacyMaintenanceMessageOfTheDay() {
+    if (this.legacyMaintenanceMessageOfTheDayCache != null) {
+      return this.legacyMaintenanceMessageOfTheDayCache;
+    }
+
+    ToggledValue<List<Component>> messageOfTheDay = this.getMaintenanceMessageOfTheDay();
+    List<Component> value = messageOfTheDay.getValue();
+    List<String> result = new ArrayList<>(value.size());
+    for (Component component : value) {
+      result.add(legacySection().serialize(component));
+    }
+
+    this.legacyMaintenanceMessageOfTheDayCache = ToggledValue.of(
+        result,
+        messageOfTheDay.isEnabled()
+    );
+    return this.legacyMaintenanceMessageOfTheDayCache;
   }
 
   @SuppressWarnings({"CanBeFinal", "FieldCanBeLocal", "FieldMayBeFinal", "unused"})
