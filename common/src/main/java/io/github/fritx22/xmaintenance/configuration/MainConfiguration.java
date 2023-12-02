@@ -145,28 +145,31 @@ public class MainConfiguration {
   }
 
   public ToggledValue<List<Component>> getPlayersHover() {
-    if (this.playersHoverCache != null) return playersHoverCache;
+    if (this.playersHoverCache != null)
+      return playersHoverCache;
 
-    ToggledValue<List<Component>> tv = new ToggledValue<>();
-    tv.value = new ArrayList<>();
-    for (String str : this.playersHover.getValue()) {
-      tv.value.add(miniMessage().deserialize(str));
+    List<String> value = this.playersHover.getValue();
+    List<Component> result = new ArrayList<>(value.size());
+    for (String str : value) {
+      result.add(miniMessage().deserialize(str));
     }
-    this.playersHoverCache = tv;
-    return tv;
+
+    this.playersHoverCache = ToggledValue.of(result, this.playersHover.isEnabled());
+    return this.playersHoverCache;
   }
 
   public ToggledValue<List<String>> getLegacyPlayersHover() {
     if (this.legacyPlayersHoverCache != null) return legacyPlayersHoverCache;
 
-    ToggledValue<List<String>> tv = new ToggledValue<>();
-    tv.value = new ArrayList<>();
-    for (String str : this.playersHover.getValue()) {
-      Component component = miniMessage().deserialize(str);
-      tv.value.add(legacySection().serialize(component));
+    ToggledValue<List<Component>> playersHover = this.getPlayersHover();
+    List<Component> value = playersHover.getValue();
+    List<String> result = new ArrayList<>(value.size());
+    for (Component component : value) {
+      result.add(legacySection().serialize(component));
     }
-    this.legacyPlayersHoverCache = tv;
-    return tv;
+
+    this.legacyPlayersHoverCache = ToggledValue.of(result, playersHover.isEnabled());
+    return this.legacyPlayersHoverCache;
   }
 
   public int getFakeVersionProtocolNumber() {
@@ -191,6 +194,13 @@ public class MainConfiguration {
     public static <C> ToggledValue<C> of(C value) {
       ToggledValue<C> tv = new ToggledValue<>();
       tv.value = value;
+      return tv;
+    }
+
+    public static <C> ToggledValue<C> of(C value, boolean status) {
+      ToggledValue<C> tv = new ToggledValue<>();
+      tv.value = value;
+      tv.enable = status;
       return tv;
     }
   }
